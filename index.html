@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="Eine digitale Pinnwand für Nachrichten, Termine, Fragen und Angebote.">
+  <title>C&amp;A Board 2.03 · Schwarzes Brett · HHU-inspiriert</title>
+  <style>
+/* C&A Bulletin Board v2.03 | Früh-2000er-Forum mit HHU-Webfarbpalette */
+:root {
+  --hhu:#006AB3; --hhu-dark:#003863; --hhu-light:#F1F8FE;
+  --steel:#a6c2d9; --line:#6589a6; --ink:#1b2942; --muted:#56677e;
+  --paper:#f4f6f9; --white:#fff; --lime:#daff6a; --alert:#b32c49;
+  --cream:#fff6d7; --yellow:#fff1bd; --lavender:#eee6ff;
+  --mint:#e5f5dc; --rose:#ffe5e8; --blue:#e4f0ff;
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {margin:0; background:#0d2343; color:var(--ink); font:13px/1.55 Verdana,Arial,Helvetica,sans-serif; background-image:radial-gradient(rgba(191,220,255,.095) 1px,transparent 1px), linear-gradient(180deg,#07182e 0,#13395f 270px,#c4d3e0 690px,#e4ecf3 100%); background-size:16px 16px,100% 100%; min-height:100vh; }
+button,input,textarea,select {font:inherit;}
+button {cursor:pointer;}
+a {color:#005b99;}
+a:hover {color:#b32c49;}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible {outline:3px solid #ffbf37;outline-offset:3px;}
+[hidden] {display:none!important;}
+.wrap {width:min(1260px,calc(100% - 50px));margin:0 auto;}
+.site-shell {width:min(1300px,calc(100% - 24px));margin:24px auto;background:var(--paper);border:1px solid #89a4be;box-shadow:0 0 0 5px #203e5c,0 0 0 6px #587b9b,0 20px 55px #07172980;}
+.retro-topline {height:26px;background:#07182e;color:#b7cfeb;font:10px/26px 'Courier New',monospace;letter-spacing:.07em;border-bottom:1px solid #4a80ad;overflow:hidden;white-space:nowrap;}
+.retro-topline .wrap {display:flex;justify-content:space-between;gap:14px;}
+.topbar {position:relative;background:radial-gradient(circle at 70% -40%,#277cb8 0,transparent 40%),repeating-linear-gradient(0deg,transparent 0,transparent 3px,#ffffff07 3px,#ffffff07 4px),linear-gradient(105deg,#00305d 4%,#005c9c 65%,#003761 100%);border-bottom:4px solid #80add0;color:white;overflow:hidden;}
+.topbar:after {content:'';position:absolute;right:5%;bottom:-28px;width:300px;height:140px;border:12px solid #ffffff0e;transform:rotate(-23deg);pointer-events:none;}
+.topbar-inner {min-height:132px;display:flex;align-items:center;justify-content:space-between;gap:22px;padding:19px 0;position:relative;z-index:1;}
+.brand {display:flex;gap:16px;align-items:center;min-width:0;color:white;text-decoration:none;}
+.brand:hover {color:white;}
+.brand-icon {height:74px;width:74px;flex:0 0 74px;display:grid;place-items:center;background:linear-gradient(#eaf9ff,#92c0e0);border:3px ridge #d7e9fb;box-shadow:inset 0 0 0 2px #32638a,5px 5px 0 #001934a6;transform:rotate(-3deg);color:#003863;}
+.brand-icon svg {width:49px;height:49px;}
+.brand-name {display:block;font-family:Tahoma,Arial,sans-serif;font-size:clamp(24px,3.2vw,38px);line-height:1.07;font-weight:900;letter-spacing:-.04em;text-shadow:2px 2px 0 #001b39;}
+.brand-sub {display:block;font:700 11px/1.65 'Courier New',monospace;color:#c7e7ff;letter-spacing:.08em;text-transform:uppercase;margin-top:8px;}
+.brand-version {display:inline-block;background:#d7f36e;color:#162f44;font-size:9px;letter-spacing:0;vertical-align:middle;padding:2px 5px;border:1px solid #d9ffa2;text-shadow:none;transform:rotate(4deg);font-family:Verdana,Arial,sans-serif;}
+.topbar-right {display:flex;flex-direction:column;align-items:flex-end;gap:9px;position:relative;z-index:1;}
+.hhu-lockup {display:flex;gap:10px;align-items:center;text-align:left;border:1px solid #ffffff67;background:#00264d8f;padding:7px 11px;}
+.hhu-mark {font:900 34px/.95 Arial,sans-serif;letter-spacing:-3px;color:white;display:inline-flex;align-items:flex-end;}
+.hhu-mark:after {content:'';height:11px;width:11px;background:#a8d3f2;margin-left:3px;margin-bottom:1px;clip-path:polygon(0 0,100% 0,100% 100%);}
+.hhu-lockup-label {font:10px/1.35 Verdana,sans-serif;color:#e3f3ff;white-space:nowrap;}
+.member-area {display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:9px;}
+.mode {display:inline-flex;align-items:center;background:#16334a;color:#dcffb3;border:1px inset #6a91aa;padding:4px 7px;font:700 10px 'Courier New',monospace;white-space:nowrap;}
+.mode:before {content:'';height:7px;width:7px;margin-right:7px;background:#7aff70;box-shadow:0 0 6px #7aff70;}
+.mode.demo {color:#ffe0b3;}
+.mode.demo:before {background:#ffaa2b;box-shadow:0 0 7px #ffaa2b;}
+.auth-user {max-width:220px;color:#dceffd;font:11px 'Courier New',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.logout-btn,.header-link {border:1px solid #add4ee;background:linear-gradient(#eef8ff,#accbe2);color:#133c5d;font:bold 10px 'Courier New',monospace;padding:5px 9px;box-shadow:inset 1px 1px #fff,2px 2px 0 #082748;white-space:nowrap;}
+.logout-btn:hover,.header-link:hover {background:#e6f5ff;}
+.navstrip {background:linear-gradient(#bed9ee,#85b0d1 52%,#749dbf 53%,#abcce4);border-top:1px solid #d8efff;border-bottom:2px solid #2b608c;box-shadow:inset 0 1px #f3faff;}
+.nav-inner {display:flex;align-items:stretch;gap:0;overflow-x:auto;}
+.nav-inner a,.nav-inner button {white-space:nowrap;text-decoration:none;border:0;border-left:1px solid #648dad;border-right:1px solid #e5f5ff;background:none;color:#00305d;font:800 11px Tahoma,Arial,sans-serif;padding:11px 17px;text-shadow:1px 1px #eaf7ff;}
+.nav-inner a:hover,.nav-inner button:hover {background:#e9f7ff;color:#a52d39;}
+.nav-inner .nav-active {background:linear-gradient(#fffeec,#e2ecf5);box-shadow:inset 0 4px #c3dd5b;}
+.nav-spacer {flex:1;}
+.nav-inner .nav-last {background:linear-gradient(#ffecab,#ffcc6b);color:#58360a;}
+.ticker {background:#eef3d0;color:#42541a;border-bottom:1px solid #abb87f;padding:7px 0;font:700 11px 'Courier New',monospace;letter-spacing:.01em;}
+.ticker .wrap {display:flex;gap:15px;align-items:center;}
+.ticker-badge {padding:2px 7px;color:white;background:#b4243b;border:1px solid #711c2c;white-space:nowrap;box-shadow:1px 1px 0 #f5ffee;}
+.ticker-copy {overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ticker-copy a {font-weight:900;}
+.page-main {padding-bottom:24px;}
+.hero {padding:25px 0 22px;}
+.breadcrumb {font:700 10px 'Courier New',monospace;color:#5d748a;letter-spacing:.025em;text-transform:uppercase;padding-bottom:16px;}
+.breadcrumb span {color:#9cadbc;padding:0 5px;}
+.hero-row {display:flex;align-items:center;justify-content:space-between;gap:20px;}
+.eyebrow {display:inline-flex;align-items:center;gap:8px;font:800 10px 'Courier New',monospace;letter-spacing:.07em;color:#b63b48;background:#ffece7;border:1px solid #d9b4af;padding:3px 8px;text-transform:uppercase;}
+.eyebrow-line {width:7px;height:7px;background:#c53544;box-shadow:0 0 0 2px #ffece7,0 0 0 3px #c53544;}
+h1 {font-family:Tahoma,Arial,sans-serif;font-size:clamp(27px,3.1vw,40px);line-height:1.16;letter-spacing:-.04em;margin:11px 0 8px;color:#073b6b;font-weight:900;}
+h1 .accent {color:#cf3648;}
+.intro {font-size:12px;line-height:1.75;color:#526981;max-width:670px;margin:0;}
+.button-primary,.button-secondary {display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:37px;padding:10px 16px;border-radius:0;font:bold 12px Tahoma,Arial,sans-serif;text-decoration:none;white-space:nowrap;box-shadow:inset 1px 1px #ffffffc9,3px 3px 0 #7a91aa;transition:filter .12s,transform .12s;}
+.button-primary {color:white;background:linear-gradient(#388ccc 0%,#0360a2 52%,#004b80 53%,#003f70 100%);border:2px outset #74acd6;text-shadow:1px 1px #002340;}
+.button-primary:hover {filter:brightness(1.14);transform:translateY(-1px);}
+.button-primary:disabled {opacity:.6;cursor:wait;transform:none;}
+.button-secondary {color:#173e61;background:linear-gradient(#fefefe,#c5d8e7);border:2px outset #c8d9ea;}
+.button-secondary:hover {filter:brightness(1.03);}
+.button-primary svg {height:14px;width:14px;}
+.forum-layout {display:grid;grid-template-columns:235px minmax(0,1fr);gap:15px;align-items:start;}
+.sidebar {display:flex;flex-direction:column;gap:14px;}
+.side-panel {border:1px solid #6c8ca8;background:#e9f0f7;box-shadow:2px 2px 0 #b4c7d7;min-width:0;}
+.panel-head,.board-head,.toolbar-head {padding:7px 10px;color:#fff;background:linear-gradient(#3b7cad,#1a5689 52%,#084570 53%,#0b4776);border:1px solid #b2d0e6;border-bottom:2px solid #072e4f;text-shadow:1px 1px #002947;font:800 11px Tahoma,Arial,sans-serif;letter-spacing:.02em;}
+.panel-head:before,.board-head:before {content:'▣';color:#c8ef80;margin-right:8px;}
+.side-body {padding:12px 11px;color:#435971;font-size:11px;line-height:1.65;}
+.side-body p {margin:0 0 9px;}
+.side-body p:last-child {margin:0;}
+.quick-filter {width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;padding:8px 9px;border:1px solid #c1d2e1;border-bottom-color:#8faec7;background:linear-gradient(#fbfdff,#e0ecf5);font:700 11px Tahoma,Arial,sans-serif;color:#17517e;margin-bottom:6px;}
+.quick-filter:hover {background:#fff8da;color:#6a4115;}
+.quick-filter:before {content:'»';color:#cf3648;font:bold 17px/1 'Courier New',monospace;}
+.quick-filter span {margin-left:auto;color:#7d8c9d;font:10px 'Courier New',monospace;}
+.stats-grid {display:grid;grid-template-columns:1fr auto;row-gap:8px;column-gap:6px;font:11px 'Courier New',monospace;}
+.stats-grid .val {color:#003c6b;font-weight:bold;text-align:right;overflow-wrap:anywhere;}
+.online-light {display:inline-block;height:8px;width:8px;background:#62c434;border:1px solid #377826;box-shadow:0 0 5px #7add31;margin-right:6px;}
+.sidebar-note {background:#fff7d9;border:1px dashed #c79e42;padding:9px;color:#69512d;}
+.side-rule {margin:10px 0;border:0;border-top:1px dashed #a5bdd0;}
+.pixel-awards {display:flex;gap:6px;flex-wrap:wrap;}
+.award {border:2px outset #d6e8f2;background:#083c71;color:#d5f6a7;font:900 9px 'Courier New',monospace;padding:4px 5px;text-align:center;line-height:1.05;box-shadow:1px 1px #6c8fad;}
+.award.alt {background:#b22b40;color:#fff4c8;}
+.content-column {min-width:0;}
+.info-bar {display:flex;gap:11px;align-items:flex-start;background:#fff2d4;border:1px solid #e1bc5f;border-left:5px solid #c33d4c;padding:11px 12px;margin:0 0 13px;color:#66512c;font:11px/1.65 Tahoma,Arial,sans-serif;}
+.info-bar strong {color:#73401b;}
+.info-bar svg {flex:none;margin-top:1px;color:#b66b22;}
+.info-bar.online {background:#ebf5e7;border-color:#9fc79a;border-left-color:#5a983b;color:#375334;}
+.info-bar.online strong {color:#275829;}
+.info-bar.online svg {color:#4c923b;}
+.toolbar {border:1px solid #6c8ca8;background:#dbe7f1;box-shadow:2px 2px #b7c9d7;margin-bottom:13px;}
+.toolbar-head {display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.toolbar-head small {font:10px 'Courier New',monospace;color:#d8eaf9;}
+.toolbar-body {padding:10px;display:flex;flex-wrap:wrap;gap:9px;justify-content:space-between;align-items:center;}
+.tabs {display:flex;flex-wrap:wrap;align-items:center;gap:5px;}
+.tab {background:linear-gradient(#ffffff,#c9dbe9);color:#2d5878;border:1px solid #7195b0;border-bottom-color:#557893;border-radius:0;padding:7px 10px;font:700 11px Tahoma,Arial,sans-serif;}
+.tab:hover {background:#fff8d9;color:#7b3e18;}
+.tab.active {background:linear-gradient(#165f9c,#003d6b);color:white;border-color:#00325d;text-shadow:1px 1px #00243e;}
+.toolbar-actions {display:flex;align-items:center;flex-wrap:wrap;gap:8px;}
+.search {display:flex;position:relative;align-items:center;}
+.search svg {position:absolute;left:9px;color:#7591a9;}
+.search input,.sort {border:1px inset #9db4c5;border-radius:0;background:white;color:#22425e;min-height:31px;font:11px Tahoma,Arial,sans-serif;}
+.search input {width:190px;padding:7px 8px 7px 31px;}
+.sort {min-width:135px;padding:7px;}
+.sectionline {display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 0;background:#e1eaf2;border:1px solid #8eacc4;border-bottom:0;padding:8px 11px;}
+.sectionline-heading {display:flex;align-items:center;gap:10px;min-width:0;}
+.sectionline h2 {font:900 12px Tahoma,Arial,sans-serif;color:#134c79;margin:0;text-transform:uppercase;}
+.count {font:10px 'Courier New',monospace;color:#586d7c;}
+.refresh {display:inline-flex;gap:6px;align-items:center;color:#175586;font:700 10px Tahoma,Arial,sans-serif;border:1px solid #9db9d0;background:linear-gradient(white,#d2e4f1);padding:4px 8px;white-space:nowrap;}
+.refresh:hover {background:#fff6d8;}
+.board {padding:9px;border:1px solid #7a9bb8;background:linear-gradient(90deg,#c8d8e6,#e9eff5 35%,#e5eef7 65%,#c8d8e6);min-height:300px;box-shadow:2px 2px 0 #b2c7d8;}
+.notes {display:flex;flex-direction:column;gap:9px;}
+.note {display:block;border:1px solid #6384a4;background:var(--white);box-shadow:2px 2px 0 #abbcce;overflow-wrap:anywhere;min-width:0;}
+.note[data-color="yellow"] {--note-bg:#fff4d2;--note-edge:#e7bd61;}
+.note[data-color="lavender"] {--note-bg:#f0e9ff;--note-edge:#bca8da;}
+.note[data-color="mint"] {--note-bg:#e7f6e6;--note-edge:#9ac896;}
+.note[data-color="rose"] {--note-bg:#ffe9ea;--note-edge:#deb0b6;}
+.note[data-color="blue"] {--note-bg:#e7f1ff;--note-edge:#9ab6dc;}
+.thread-strip {display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid #799ab7;background:linear-gradient(#a2c2dd 0%,#81a9c9 51%,#6796bc 52%,#7da9cb);padding:5px 9px;color:#103f62;min-height:29px;}
+.thread-strip-left {display:flex;flex-wrap:wrap;align-items:center;gap:9px;min-width:0;}
+.thread-ico {display:grid;place-items:center;height:17px;width:17px;color:#06395e;background:#daedfa;border:1px outset #d4e8f9;font:bold 11px/1 Tahoma,Arial;}
+.category {background:#f0f7fd;color:#164c7c;padding:2px 6px;font:800 10px Tahoma,Arial,sans-serif;border:1px solid #92b3cf;}
+.thread-index {color:#275779;font:10px 'Courier New',monospace;}
+.important {display:inline-flex;align-items:center;gap:5px;background:#fff0a2;color:#7f251c;border:1px solid #d9a53b;padding:2px 6px;font:900 9px Tahoma,Arial,sans-serif;white-space:nowrap;}
+.thread-inner {display:grid;grid-template-columns:148px minmax(0,1fr);min-height:170px;}
+.thread-user {display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;background:var(--note-bg);border-right:1px dotted #9db1bf;padding:16px 10px;}
+.avatar {height:54px;width:54px;border:3px ridge #8cb3d5;background:linear-gradient(135deg,#d5eaf9,#6ba1cd);color:#083c6b;display:grid;place-items:center;font:900 25px Tahoma,Arial,sans-serif;text-shadow:1px 1px #fff;box-shadow:2px 2px 0 #476b89;}
+.note-author {font:800 11px Tahoma,Arial,sans-serif;color:#004c84;max-width:100%;overflow-wrap:anywhere;}
+.user-rank {font:9px 'Courier New',monospace;color:#4f5a60;letter-spacing:-.03em;}
+.rank-pips {display:flex;gap:3px;}
+.rank-pips i {display:block;height:6px;width:12px;border:1px solid #518aa7;background:#89c4f0;box-shadow:inset 1px 1px #ecf8ff;}
+.rank-pips i:nth-child(3) {background:#d7e3ea;}
+.thread-message {padding:16px 20px 10px;background:linear-gradient(#fff,#fcfdff 80%);display:flex;flex-direction:column;min-width:0;}
+.note h3 {margin:0 0 8px;font:900 17px/1.25 Tahoma,Arial,sans-serif;color:#084473;letter-spacing:-.025em;}
+.note p {margin:0 0 20px;line-height:1.65;font:12px/1.7 Verdana,Arial,sans-serif;white-space:pre-wrap;overflow-wrap:anywhere;flex:1;}
+.note-footer {display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;padding-top:9px;border-top:1px dashed #ccd8e4;}
+.note-date {font:10px 'Courier New',monospace;color:#667c90;}
+.note-actions {display:flex;flex-wrap:wrap;gap:6px;}
+.note-actions button {background:linear-gradient(#fdfefe,#dce9f3);border:1px outset #a7c1d6;color:#154c76;font:700 10px Tahoma,Arial,sans-serif;padding:5px 9px;}
+.note-actions button:hover {background:#fff3cd;color:#96373d;}
+.empty {min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;padding:20px;background:#fbfdff;border:1px dashed #9fbbd0;}
+.empty-icon {width:55px;height:55px;display:grid;place-items:center;border:2px ridge #b5cde2;background:#e4f0fa;color:#3c799e;}
+.empty h3 {margin:0;font:900 18px Tahoma,Arial,sans-serif;color:#174b77;}
+.empty p {margin:0 0 4px;color:#5a7084;max-width:330px;}
+.board-bottom {display:flex;flex-wrap:wrap;justify-content:space-between;gap:7px;padding:9px 10px;background:#dfebf3;border:1px solid #7899b5;border-top:0;color:#516d83;font:10px 'Courier New',monospace;}
+.board-bottom strong {color:#004878;}
+footer {background:#0c3558;color:#bfd6e8;border-top:3px solid #5b99c5;padding:16px 0 17px;}
+.footer-inner {display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;font:10px/1.7 'Courier New',monospace;}
+.footer-inner a {color:#d0eaff;}
+.footer-note {color:#a7c5dc;font-size:10px;}
+.backdrop {position:fixed;z-index:10;inset:0;background:rgba(5,20,42,.72);display:grid;place-items:center;padding:15px;}
+.dialog {background:#f2f5f9;border:3px ridge #8eb7d4;box-shadow:0 0 0 4px #184b70,12px 12px 0 #061a32a6;padding:0;width:min(565px,100%);max-height:min(94vh,950px);overflow-y:auto;}
+.dialog-head {display:flex;justify-content:space-between;align-items:center;gap:12px;background:linear-gradient(#3f81b1,#003d70);border-bottom:3px ridge #bfd4e9;color:white;padding:12px 14px;}
+.dialog-label {display:block;font:700 9px 'Courier New',monospace;color:#d4ff8d;letter-spacing:.09em;}
+.dialog h2 {font:900 18px Tahoma,Arial,sans-serif;margin:4px 0 0;color:white;text-shadow:1px 1px #002440;}
+.close {background:linear-gradient(#fff2e4,#dd9e92);border:2px outset #fff0e6;color:#773b32;font:900 20px/1 Tahoma;width:30px;height:29px;}
+#noteForm {padding:18px 20px 19px;}
+.field {display:block;margin-bottom:15px;}
+.field-label {display:flex;align-items:center;justify-content:space-between;gap:9px;font:800 11px Tahoma,Arial,sans-serif;color:#254765;margin-bottom:6px;}
+.counter {font:10px 'Courier New',monospace;color:#728aa1;}
+.field input,.field textarea,.field select {width:100%;display:block;background:white;color:#223d58;border:2px inset #bed2e2;border-radius:0;font:12px Verdana,Arial,sans-serif;padding:10px;}
+.field textarea {min-height:116px;resize:vertical;line-height:1.65;}
+.fields-row {display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.color-options {display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:8px 0 16px;}
+.color-choice {position:relative;cursor:pointer;display:inline-flex;}
+.color-choice input {position:absolute;opacity:0;width:0;height:0;}
+.color-swatch {display:block;height:26px;width:30px;border:3px ridge #acb9c5;background:var(--yellow);}
+.color-swatch.lavender {background:var(--lavender);} .color-swatch.mint {background:var(--mint);} .color-swatch.rose {background:var(--rose);} .color-swatch.blue {background:var(--blue);}
+.color-choice input:checked + .color-swatch,.color-choice input:focus-visible + .color-swatch {outline:3px solid #dd4455;outline-offset:2px;}
+.checkbox-row {display:flex;align-items:center;gap:9px;font:11px Tahoma,Arial,sans-serif;margin:10px 0 17px;}
+.checkbox-row input {accent-color:#006ab3;width:15px;height:15px;}
+.dialog-actions {display:flex;justify-content:flex-end;gap:10px;border-top:1px dashed #a4bdd1;padding-top:16px;}
+.toast {position:fixed;z-index:30;right:23px;bottom:23px;max-width:380px;color:#fff;background:#003e70;padding:12px 16px;border:2px ridge #9fcbeb;box-shadow:5px 5px #061d38;font:11px/1.6 Verdana,Arial,sans-serif;}
+.toast.error {background:#9e283d;}
+.auth-screen {padding:45px 18px 62px;display:grid;place-items:center;min-height:540px;background:radial-gradient(#cad9e6 1px,transparent 1px),#e9f1f7;background-size:12px 12px;}
+.auth-card {width:min(515px,100%);background:#edf3f8;border:3px ridge #7fa8c6;box-shadow:6px 6px 0 #7f9bb4;}
+.auth-card-top {display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(#3885c0,#004777);padding:11px 14px;color:white;border-bottom:3px ridge #d8e8f5;}
+.auth-kicker {font:900 11px 'Courier New',monospace;letter-spacing:.08em;color:#e5fbad;}
+.auth-card-top .sys-tag {font:700 10px 'Courier New',monospace;color:#d8f1ff;}
+.auth-card-content {padding:28px 30px 27px;}
+.auth-card h1 {margin:0 0 13px;color:#004d82;font:900 28px/1.2 Tahoma,Arial,sans-serif;}
+.auth-card p {color:#52687b;font-size:12px;line-height:1.7;margin:0 0 22px;}
+.auth-card label {font:800 11px Tahoma,Arial,sans-serif;color:#254663;display:flex;flex-direction:column;gap:6px;margin-bottom:15px;}
+.auth-card input {background:white;color:#253b53;border:2px inset #a9bed1;border-radius:0;padding:11px 10px;width:100%;font:12px Verdana,Arial,sans-serif;}
+.auth-card button[type=submit] {width:100%;margin-top:7px;}
+.auth-error {padding:11px;background:#fff0ee;border:1px solid #cf7e82;color:#91373f;margin:2px 0 13px;font-size:11px;}
+.auth-card p.auth-caption {font:10px/1.65 'Courier New',monospace;margin:16px 0 0;color:#677988;}
+.auth-ornament {display:flex;justify-content:space-between;gap:8px;color:#7090a9;border-top:1px dashed #b1c7d8;margin-top:18px;padding-top:10px;font:10px 'Courier New',monospace;}
+@media (max-width:1030px) {.forum-layout {grid-template-columns:205px minmax(0,1fr);} .toolbar-body {align-items:stretch;flex-direction:column;} .toolbar-actions {width:100%;} .search {flex:1;} .search input {width:100%;} .topbar-inner {min-height:120px;} }
+@media (max-width:760px) {.site-shell {width:calc(100% - 12px);margin:10px auto;box-shadow:0 0 0 3px #203e5c,0 0 0 4px #587b9b;} .wrap {width:calc(100% - 26px);} .forum-layout {display:flex;flex-direction:column-reverse;} .content-column,.sidebar {width:100%;} .sidebar {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));} .topbar-inner {align-items:flex-start;flex-wrap:wrap;gap:14px;padding:17px 0;} .topbar-right {flex-direction:row;align-items:flex-start;justify-content:space-between;width:100%;} .hhu-lockup {display:none;} .hero-row {align-items:flex-start;flex-direction:column;} .hero-row .button-primary {width:100%;} .brand-icon {width:61px;height:61px;flex-basis:61px;} .brand-icon svg {height:42px;width:42px;} .brand-name {font-size:27px;} .ticker {font-size:10px;} }
+@media (max-width:540px) {.sidebar {display:flex;} .retro-topline {font-size:9px;} .retro-topline .wrap span:last-child {display:none;} .topbar-right {gap:6px;flex-wrap:wrap;} .brand-sub {font-size:9px;} .thread-inner {grid-template-columns:94px minmax(0,1fr);} .thread-user {padding:13px 5px;gap:6px;} .avatar {width:40px;height:40px;font-size:20px;} .note-author {font-size:10px;} .user-rank {font-size:8px;} .rank-pips i {width:7px;} .thread-message {padding:13px 10px 10px;} .note h3 {font-size:14px;} .note p {font-size:11px;} .note-footer {align-items:flex-start;flex-direction:column;} .search {width:100%;} .toolbar-actions {flex-direction:column;align-items:stretch;} .sort {width:100%;} .fields-row {grid-template-columns:1fr;gap:0;} .dialog-actions {flex-direction:column;} .dialog-actions button {width:100%;} .auth-card-content {padding:22px 17px;} .auth-card h1 {font-size:25px;} .nav-inner a,.nav-inner button {padding:9px 11px;font-size:10px;} .sectionline {flex-wrap:wrap;} }
+@media (prefers-reduced-motion:reduce) {*,*:before,*:after {transition:none!important;animation:none!important;scroll-behavior:auto!important;}}
+
+</style>
+</head>
+<body>
+  <!--
+    GESCHUETZTE PINNWAND -- Zugriff nur ueber serverseitig geprueften Token.
+    1. Supabase Project URL unten eintragen.
+    2. SQL-Schutz ausfuehren, Edge Function board-api deployen.
+    3. Geheimen Link per URL-Fragment (#token=...) verteilen.
+    Niemals Secret / Service Role Key in HTML einfuegen.
+  -->
+  <script>
+    const BOARD_CONFIG = {
+      supabaseUrl: "",
+      supabasePublishableKey: ""
+    };
+  </script>
+
+
+  <div class="site-shell">
+    <div class="retro-topline"><div class="wrap"><span>[ C&A :: INTRANET-STYLE BULLETIN BOARD SYSTEM ]</span><span>EST. 2003 (GEFÜHLT) &nbsp; // &nbsp; REV. 2.03</span></div></div>
+    <header class="topbar">
+      <div class="wrap topbar-inner">
+        <a class="brand" href="#start" aria-label="Zum Schwarzen Brett">
+          <span class="brand-icon" aria-hidden="true">
+            <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" fill="none">
+              <rect x="2" y="2" width="40" height="40" fill="#e6f4ff" stroke="#0b4e7d" stroke-width="2"/>
+              <path d="M7 33H37" stroke="#0b4e7d" stroke-width="2"/><rect x="9" y="22" width="7" height="11" fill="#006ab3"/><rect x="19" y="15" width="7" height="18" fill="#003863"/><rect x="29" y="8" width="7" height="25" fill="#bd3148"/>
+              <rect x="5" y="5" width="4" height="4" fill="#a5d327"/>
+            </svg>
+          </span>
+          <span>
+            <span class="brand-name">Das Schwarze Brett<span class="brand-version">v2.03</span></span>
+            <span class="brand-sub">CONTROLLING &amp; ACCOUNTING // BOARD SYSTEM</span>
+          </span>
+        </a>
+        <div class="topbar-right">
+          <div class="hhu-lockup" aria-label="Design angelehnt an die Farben der Heinrich-Heine-Universität Düsseldorf">
+            <span class="hhu-mark">hhu</span><span class="hhu-lockup-label">Heinrich-Heine-Universität<br>Düsseldorf · Farb-Inspiration</span>
+          </div>
+          <div class="member-area"><span class="mode demo" id="modeBadge">Lokaler Demo-Modus</span><button class="header-link" type="button" id="helpButton">[ Hilfe ? ]</button></div>
+        </div>
+      </div>
+    </header>
+    <nav class="navstrip" aria-label="Hauptnavigation"><div class="wrap nav-inner">
+      <a href="#start" class="nav-active">⌂ &nbsp; STARTSEITE</a>
+      <a href="#forum">▦ &nbsp; FORENÜBERSICHT</a>
+      <a href="#boardRules">? &nbsp; BOARDREGELN</a>
+      <span class="nav-spacer"></span>
+      <a class="nav-last" href="https://www.controlling.hhu.de/" target="_blank" rel="noopener noreferrer">HHU LEHRSTUHL ↗</a>
+    </div></nav>
+    <div class="ticker"><div class="wrap"><span class="ticker-badge">+++ BOARD-NEWS +++</span><span class="ticker-copy">Master the Language of Accounting and Control. &nbsp; ::: &nbsp; <a href="#forum">Fragen, Termine und Aushänge</a> &nbsp; ::: &nbsp; Offenes Board: Lesen und Posten ohne Anmeldung.</span></div></div>
+
+<main id="start" class="wrap page-main">
+      <section class="hero" aria-labelledby="heroTitle">
+        <div class="breadcrumb">BOARD INDEX <span>»</span> COMMUNICATION HUB <span>»</span> C&amp;A COMMUNITY</div>
+        <div class="hero-row">
+          <div>
+            <div class="eyebrow"><span class="eyebrow-line"></span> OFF-TOPIC IST AUCH EIN TOPIC</div>
+            <h1 id="heroTitle">Das Schwarze Brett<span class="accent">_</span></h1>
+            <p class="intro">Die digitale Pausenküche zwischen Kennzahlen, Kaffee und Deadlines. Aushänge, Fragen, Termine und alles, was sonst in keinem Reporting steht.</p>
+          </div>
+          <button type="button" class="button-primary" id="addButton"><span aria-hidden="true">✦</span> NEUEN BEITRAG POSTEN</button>
+        </div>
+      </section>
+
+      <div class="forum-layout">
+        <aside class="sidebar" aria-label="Forum-Informationen">
+          <section class="side-panel" aria-labelledby="forumNavTitle">
+            <div class="panel-head" id="forumNavTitle">QUICK NAVIGATION</div>
+            <div class="side-body">
+              <button type="button" class="quick-filter" data-quick-filter="Alle">Alle Beiträge <span>ALL</span></button>
+              <button type="button" class="quick-filter" data-quick-filter="Allgemein">Allgemeines <span>GEN</span></button>
+              <button type="button" class="quick-filter" data-quick-filter="Termine">Termine &amp; Events <span>CAL</span></button>
+              <button type="button" class="quick-filter" data-quick-filter="Fragen">Fragen &amp; Hilfe <span>FAQ</span></button>
+              <button type="button" class="quick-filter" data-quick-filter="Angebote">Fundgrube <span>BUY</span></button>
+              <hr class="side-rule">
+              <button class="button-secondary" type="button" id="sidebarAddButton" style="width:100%;font-size:10px">[ + NEUES THEMA ]</button>
+            </div>
+          </section>
+          <section class="side-panel" aria-labelledby="statsTitle">
+            <div class="panel-head" id="statsTitle">BOARD STATISTICS</div>
+            <div class="side-body">
+              <div class="stats-grid">
+                <span>Beitraege:</span><span class="val" id="totalCount">—</span>
+                <span>Verbindung:</span><span class="val"><i class="online-light" aria-hidden="true"></i><span id="connectionLabel">Vorschau</span></span>
+                <span>Letzter Abruf:</span><span class="val" id="lastSyncTime">—</span>
+                <span>Board-Version:</span><span class="val">2.03</span>
+              </div>
+              <hr class="side-rule">
+              <p><strong>Willkommen zurück!</strong> Bitte freundlich posten. Hier wird zwischen Forecasts und Kaffeepausen kommuniziert.</p>
+            </div>
+          </section>
+          <section class="side-panel" id="boardRules" aria-labelledby="boardRulesTitle">
+            <div class="panel-head" id="boardRulesTitle">BOARD RULES.txt</div>
+            <div class="side-body">
+              <div class="sidebar-note"><strong>! WICHTIG:</strong> Keine vertraulichen Forschungs-, Personal- oder Studierendendaten posten. Keine Passwörter, keine personenbezogenen Dokumente.</div>
+              <hr class="side-rule">
+              <p>01 &nbsp; Nett bleiben.</p><p>02 &nbsp; Themen sinnvoll benennen.</p><p>03 &nbsp; Nicht alles ist ein KPI.</p>
+            </div>
+          </section>
+          <section class="side-panel" aria-labelledby="webBadgesTitle">
+            <div class="panel-head" id="webBadgesTitle">WEBRING / 2003-VIBES</div>
+            <div class="side-body"><div class="pixel-awards"><span class="award">BEST VIEWED<br>WITH COFFEE</span><span class="award alt">100%<br>RETRO</span><span class="award">Ctrl + Acc<br>FOREVER</span></div><p style="margin-top:10px">Kein offizielles Angebot der HHU oder des Lehrstuhls. Gestaltung in Anlehnung an das HHU-Blau.</p></div>
+          </section>
+        </aside>
+
+        <div class="content-column" id="forum">
+          <div class="info-bar" id="infoBar" role="status">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <span id="infoText"><strong>Lokale Vorschau:</strong> Beiträge werden in diesem Browser gespeichert. Für die gemeinsame Pinnwand Supabase verbinden.</span>
+          </div>
+          <section class="toolbar" aria-label="Nachrichten filtern und durchsuchen">
+            <div class="toolbar-head"><span>[ FOREN-FILTER / SEARCH ]</span><small>BOARD CONTROLS // v2.03</small></div>
+            <div class="toolbar-body">
+              <div class="tabs" role="group" aria-label="Kategorie auswählen">
+                <button class="tab active" type="button" data-filter="Alle" aria-pressed="true">Alle</button>
+                <button class="tab" type="button" data-filter="Allgemein" aria-pressed="false">Allgemein</button>
+                <button class="tab" type="button" data-filter="Termine" aria-pressed="false">Termine</button>
+                <button class="tab" type="button" data-filter="Fragen" aria-pressed="false">Fragen</button>
+                <button class="tab" type="button" data-filter="Angebote" aria-pressed="false">Angebote</button>
+              </div>
+              <div class="toolbar-actions">
+                <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10.8" cy="10.8" r="7.3"/><path d="m16.2 16.2 4.6 4.6"/></svg><input id="searchInput" type="search" placeholder="Beiträge suchen..." aria-label="Beiträge durchsuchen"></label>
+                <select id="sortSelect" class="sort" aria-label="Reihenfolge"><option value="recent">Neueste zuerst</option><option value="oldest">Älteste zuerst</option><option value="important">Angepinnte zuerst</option></select>
+              </div>
+            </div>
+          </section>
+          <section aria-labelledby="boardTitle">
+            <div class="sectionline"><div class="sectionline-heading"><h2 id="boardTitle">ALLE AUSHÄNGE</h2><span class="count" id="resultCount">—</span></div><button class="refresh" id="refreshButton" type="button" title="Beiträge aktualisieren" aria-label="Beiträge aktualisieren"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11a8 8 0 1 0-2.4 6"/><path d="m20 4 0 7-7 0"/></svg> AKTUALISIEREN</button></div>
+            <div class="board"><div class="notes" id="notesContainer" aria-live="polite"></div><div class="empty" id="emptyState" hidden><span class="empty-icon" aria-hidden="true">[?]</span><h3>Hier ist noch nichts los.</h3><p id="emptyMessage">Eröffne die erste Diskussion im Board.</p><button class="button-secondary" type="button" id="emptyAddButton">[ + THEMA ERSTELLEN ]</button></div></div>
+            <div class="board-bottom"><span>◼ C&amp;A BOARD SYSTEM 2.03 &nbsp; / &nbsp; NO SPAM. JUST POSTS.</span><span>ALLE ZEITEN SIND LOKAL</span></div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <footer><div class="wrap footer-inner"><div><strong>© C&amp;A BOARD // 2003 FEELING, 2026 TECH</strong><div class="footer-note">Inoffizielle Pinnwand · HHU-inspirierte Farben · keine offizielle Website des Lehrstuhls.</div></div><div><span id="footerStatus">Vorschau · Daten nur lokal</span><div><a href="https://www.controlling.hhu.de/" target="_blank" rel="noopener noreferrer">Zum offiziellen Lehrstuhlauftritt ↗</a></div></div></div></footer>
+  </div>
+
+  <div id="modalBackdrop" class="backdrop" hidden>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="modalHeading">
+      <div class="dialog-head"><div><span class="dialog-label">[ NEW MESSAGE / C&amp;A FORUM ]</span><h2 id="modalHeading">Neuen Beitrag posten</h2></div><button class="close" id="closeModal" type="button" aria-label="Schließen">×</button></div>
+      <form id="noteForm">
+        <label class="field"><span class="field-label"><span>› BETREFF / ÜBERSCHRIFT *</span><span class="counter" id="titleCounter">0/80</span></span><input id="noteTitle" name="title" required minlength="2" maxlength="80" placeholder="Worum geht's?"></label>
+        <label class="field"><span class="field-label"><span>› DEIN BEITRAG *</span><span class="counter" id="contentCounter">0/1200</span></span><textarea id="noteContent" name="content" required minlength="2" maxlength="1200" placeholder="Schreib deine Nachricht..."></textarea></label>
+        <div class="fields-row"><label class="field"><span class="field-label"><span>› ANZEIGENAME *</span></span><input id="noteAuthor" name="author" required maxlength="60" placeholder="z. B. Alex"></label><label class="field"><span class="field-label"><span>› SUBFORUM</span></span><select id="noteCategory" name="category"><option value="Allgemein">Allgemein</option><option value="Termine">Termine</option><option value="Fragen">Fragen</option><option value="Angebote">Angebote</option></select></label></div>
+        <span class="field-label">› HINTERGRUNDFARBE</span>
+        <div class="color-options" role="group" aria-label="Zettelfarbe wählen">
+          <label class="color-choice" title="Gelb"><input type="radio" name="color" value="yellow" checked><span class="color-swatch"></span></label>
+          <label class="color-choice" title="Lila"><input type="radio" name="color" value="lavender"><span class="color-swatch lavender"></span></label>
+          <label class="color-choice" title="Grün"><input type="radio" name="color" value="mint"><span class="color-swatch mint"></span></label>
+          <label class="color-choice" title="Rosa"><input type="radio" name="color" value="rose"><span class="color-swatch rose"></span></label>
+          <label class="color-choice" title="Blau"><input type="radio" name="color" value="blue"><span class="color-swatch blue"></span></label>
+        </div>
+        <label class="checkbox-row"><input type="checkbox" id="noteImportant" name="important"><span>[★] Beitrag als wichtig anpinnen</span></label>
+        <div class="dialog-actions"><button type="button" class="button-secondary" id="cancelModal">ABBRECHEN</button><button type="submit" class="button-primary" id="saveButton">BEITRAG ABSCHICKEN »</button></div>
+      </form>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status" hidden></div>
+  <script>
+(() => {
+      "use strict";
+      const $ = (id) => document.getElementById(id);
+      const allowedColors = ["yellow","lavender","mint","rose","blue"];
+      const allowedCategories = ["Allgemein","Termine","Fragen","Angebote"];
+      const baseUrl = String(BOARD_CONFIG.supabaseUrl || "").trim().replace(/\/+$/, "");
+      const sharedMode = Boolean(baseUrl);
+      const storageKey = "schwarzes-brett-notes-v1";
+      const nameKey = "schwarzes-brett-name-v1";
+      const tokenKey = "schwarzes-brett-access-token";
+      const fragmentToken = new URLSearchParams(location.hash.replace(/^#/,"")).get("token");
+      if (fragmentToken && /^[a-f0-9]{64}$/.test(fragmentToken)) {
+        sessionStorage.setItem(tokenKey,fragmentToken);
+        history.replaceState(null,"",location.pathname+location.search);
+      }
+      const accessToken = sessionStorage.getItem(tokenKey) || "";
+      const edgeUrl = `${baseUrl}/functions/v1/board-api`;
+      let notes = [];
+      let activeFilter = "Alle";
+      let editingId = null;
+      let toastTimer = null;
+      let lastFocused = null;
+      let currentlyLoading = false;
+      async function boardRequest(action,extra={}) {
+        if(!/^[a-f0-9]{64}$/.test(accessToken)) throw new Error("Kein gültiger Zugangslink. Bitte den persönlichen Link öffnen.");
+        const response = await fetch(edgeUrl,{method:"POST",headers:{"Content-Type":"application/json","x-board-token":accessToken},body:JSON.stringify({action,...extra}),cache:"no-store"});
+        const result = await response.json().catch(()=>({error:"Ungültige Serverantwort"}));
+        if(!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
+        return result;
+      }
+      const appMain = $("start");
+      const appFooter = document.querySelector("footer");
+
+
+      $("modeBadge").textContent=sharedMode?"Privater Linkzugang":"Konfiguration fehlt";
+      $("footerStatus").textContent=sharedMode?"Linkgeschützt · Gemeinsame Datenbank":"Nicht verbunden";
+      $("infoText").textContent=sharedMode?
+        "Zugriff nur über einen gültigen Einladungslink. Alle Linkinhaber können Beiträge lesen, bearbeiten und löschen. Anzeigenamen sind nicht verifiziert.":
+        "Lokale Vorschau: Beiträge werden nur in diesem Browser gespeichert.";
+      const demoNotes = () => {
+        const now = Date.now();
+        return [
+          {id:"demo-1",title:"Willkommen auf dem Schwarzen Brett!",content:"Hier kannst du Neuigkeiten teilen, Fragen stellen und Termine ankündigen. Probier es einfach aus – dieser Eintrag ist nur ein Beispiel.",author:"Das Team",category:"Allgemein",color:"yellow",pinned:true,created_at:new Date(now-3600*1000*3).toISOString(),demo:true},
+          {id:"demo-2",title:"Nächstes Teamtreffen",content:"Kleine Erinnerung: Unser nächstes Treffen steht an. Weitere Infos kannst du hier als neuen Aushang ergänzen.",author:"Alex",category:"Termine",color:"mint",pinned:false,created_at:new Date(now-3600*1000*16).toISOString(),demo:true},
+          {id:"demo-3",title:"Hat jemand einen Tipp?",content:"Du suchst Hilfe, möchtest etwas tauschen oder hast eine kurze Frage? Genau dafür ist diese Pinnwand da.",author:"Sam",category:"Fragen",color:"lavender",pinned:false,created_at:new Date(now-3600*1000*28).toISOString(),demo:true}
+        ];
+      };
+      function localGet(key) { try { return window.localStorage.getItem(key); } catch (_) { return null; } }
+      function localSet(key, val) { try { window.localStorage.setItem(key,val); return true; } catch (_) { return false; } }
+      function loadLocal() { markUpdated("Lokal"); const raw=localGet(storageKey); if (raw===null) {notes=demoNotes();localSet(storageKey,JSON.stringify(notes));} else {try {const parsed=JSON.parse(raw); notes=Array.isArray(parsed)?parsed:[];} catch (_) {notes=[];}} render(); }
+      function persistLocal() { if (!localSet(storageKey,JSON.stringify(notes))) { showToast("Der Browser erlaubt keine dauerhafte Speicherung.",true); } }
+      const safeText = (v) => typeof v === "string" ? v : "";
+      function showToast(message,error=false) { const t=$("toast");t.textContent=message;t.className=`toast${error?" error":""}`;t.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.hidden=true,4200); }
+      function formatDate(value) {const dt=new Date(value);if(Number.isNaN(dt.getTime()))return "Unbekannt";return new Intl.DateTimeFormat("de-DE",{day:"2-digit",month:"short",year:"numeric"}).format(dt);}
+      function addEl(tag,cls,text) { const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el; }
+      function appendIcon(button,kind) {
+        const icons={delete:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v6M14 10v6"/></svg>',edit:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16 4l4 4L9 19l-5 1 1-5z"/></svg>'};button.innerHTML=icons[kind];
+      }
+      function card(note,i) {
+        const item=addEl("article","note");
+        item.dataset.color=allowedColors.includes(note.color)?note.color:"yellow";
+        const top=addEl("div","thread-strip");
+        const left=addEl("div","thread-strip-left");
+        left.append(addEl("span","thread-ico",note.pinned?"★":"▸"));
+        left.append(addEl("span","category",allowedCategories.includes(note.category)?note.category:"Allgemein"));
+        left.append(addEl("span","thread-index",`THREAD ${String(i+1).padStart(3,"0")}`));
+        top.append(left);
+        if(note.pinned)top.append(addEl("span","important","★ ANGEPINNT"));
+        else if(note.demo)top.append(addEl("span","important","DEMO"));
+        item.append(top);
+        const inner=addEl("div","thread-inner");
+        const by=addEl("aside","thread-user");
+        const author=safeText(note.author)||"Anonym";
+        by.append(addEl("span","avatar",author.trim().slice(0,1).toLocaleUpperCase("de-DE")||"?"));
+        by.append(addEl("span","note-author",author));
+        by.append(addEl("span","user-rank","BOARD MEMBER"));
+        const bars=addEl("span","rank-pips");
+        for(let j=0;j<3;j++)bars.append(addEl("i"));
+        bars.setAttribute("aria-hidden","true");by.append(bars);inner.append(by);
+        const message=addEl("div","thread-message");
+        message.append(addEl("h3",null,safeText(note.title)));
+        message.append(addEl("p",null,safeText(note.content)));
+        const footer=addEl("div","note-footer");
+        footer.append(addEl("span","note-date",`GESCHRIEBEN: ${formatDate(note.created_at)} · #${String(i+1).padStart(3,"0")}`));
+        {
+          const actions=addEl("div","note-actions");
+          const edit=addEl("button",null,"[ EDIT ]");edit.type="button";edit.title="Nachricht bearbeiten";edit.setAttribute("aria-label",`${safeText(note.title)} bearbeiten`);edit.addEventListener("click",()=>openModal(note.id));actions.append(edit);
+          const del=addEl("button",null,"[ X LÖSCHEN ]");del.type="button";del.title="Nachricht löschen";del.setAttribute("aria-label",`${safeText(note.title)} löschen`);del.addEventListener("click",()=>removeNote(note.id));actions.append(del);
+          footer.append(actions);
+        }
+        message.append(footer);inner.append(message);item.append(inner);return item;
+      }
+      function render() {
+        const search=$("searchInput").value.trim().toLocaleLowerCase("de-DE");
+        let filtered=notes.filter(n=>(activeFilter==="Alle"||n.category===activeFilter)&&(!search||[n.title,n.content,n.author,n.category].some(v=>safeText(v).toLocaleLowerCase("de-DE").includes(search))));
+        const ordering=$("sortSelect").value;
+        filtered.sort((a,b)=>{if(ordering==="important"&&Boolean(a.pinned)!==Boolean(b.pinned))return Number(Boolean(b.pinned))-Number(Boolean(a.pinned));const difference=new Date(b.created_at).getTime()-new Date(a.created_at).getTime();return ordering==="oldest"?-difference:difference;});
+        const container=$("notesContainer");container.replaceChildren();const fragment=document.createDocumentFragment();filtered.forEach((n,i)=>fragment.append(card(n,i)));container.append(fragment);
+        $("totalCount").textContent=String(notes.length);
+        $("resultCount").textContent=`${filtered.length} ${filtered.length===1?"Nachricht":"Nachrichten"}`;
+        $("boardTitle").textContent=activeFilter==="Alle"?"Alle Aushänge":activeFilter;
+        const empty=filtered.length===0;$("emptyState").hidden=!empty;$("notesContainer").hidden=empty;
+        $("emptyMessage").textContent=notes.length===0?"Eröffne die erste Diskussion im Board.":"Hier wurden noch keine passenden Beiträge gefunden.";
+      }
+      function markUpdated(label) {
+        $("connectionLabel").textContent=label;
+        $("lastSyncTime").textContent=new Intl.DateTimeFormat("de-DE",{hour:"2-digit",minute:"2-digit"}).format(new Date());
+      }
+      function setLoading(loading) { currentlyLoading=loading;$("refreshButton").disabled=loading; }
+      async function loadRemote(silent=false) {
+        if(currentlyLoading)return;
+        setLoading(true);
+        try {
+          const result=await boardRequest("list");
+          notes=result.notes||[];
+          markUpdated("Online");render();
+          if(!silent)showToast("Pinnwand ist auf dem neuesten Stand.");
+          $("infoBar").classList.add("online");
+          $("infoText").textContent="Geschütztes Board: Alle mit einem gültigen Zugangslink können Beiträge lesen, erstellen, bearbeiten und löschen. Aktualisierung etwa alle 20 Sekunden.";
+        } catch(error) {
+          if(!silent||notes.length===0)showToast(`Abruf fehlgeschlagen: ${error.message}`,true);
+          $("infoBar").classList.remove("online");
+          $("infoText").textContent=`Zugriff fehlgeschlagen: ${error.message}`;
+          $("connectionLabel").textContent="Gesperrt";
+        } finally {setLoading(false);}
+      }
+      async function addRemote(record) {await boardRequest("add",{record});await loadRemote(true);}
+      async function updateRemote(id,record) {const r=await boardRequest("update",{id,record});if(!r.ok)throw new Error("Beitrag nicht gefunden");await loadRemote(true);}
+      async function removeNote(id) {
+        const note=notes.find(n=>n.id===id);
+        if(!note)return;
+        if(!confirm(`Aushang „${safeText(note.title)}“ wirklich löschen?`))return;
+        if(sharedMode) {
+          try {
+            const result=await boardRequest("delete",{id});
+            if(!result.ok)throw new Error("Beitrag nicht gefunden.");
+            await loadRemote(true);
+            showToast("Aushang wurde entfernt.");
+          } catch(error) {showToast(`Löschen fehlgeschlagen: ${error.message}`,true);}
+        } else {
+          notes=notes.filter(n=>n.id!==id);
+          persistLocal();render();showToast("Aushang wurde entfernt.");
+        }
+      }
+      function updateCounters() {$("titleCounter").textContent=`${$("noteTitle").value.length}/80`;$("contentCounter").textContent=`${$("noteContent").value.length}/1200`;}
+      function openModal(id=null) {
+        
+        editingId=id;lastFocused=document.activeElement;
+        const note=id===null?null:notes.find(n=>n.id===id);$("noteForm").reset();$("modalHeading").textContent=note?"Beitrag bearbeiten":"Neuen Beitrag posten";$("saveButton").textContent=note?"ÄNDERUNGEN SPEICHERN »":"BEITRAG ABSCHICKEN »";
+        $("noteTitle").value=note?safeText(note.title):"";$("noteContent").value=note?safeText(note.content):"";$("noteAuthor").value=note?safeText(note.author):(localGet(nameKey)||"");$("noteCategory").value=note&&allowedCategories.includes(note.category)?note.category:"Allgemein";$("noteImportant").checked=Boolean(note?.pinned);
+        const color=note&&allowedColors.includes(note.color)?note.color:"yellow";const radio=document.querySelector(`input[name="color"][value="${color}"]`);if(radio)radio.checked=true;
+        updateCounters();$("modalBackdrop").hidden=false;document.body.style.overflow="hidden";$("noteTitle").focus();
+      }
+      function closeModal() {$("modalBackdrop").hidden=true;document.body.style.overflow="";editingId=null;if(lastFocused?.focus)lastFocused.focus();}
+      async function handleSubmit(event) {
+        event.preventDefault();if(!$("noteForm").reportValidity())return;
+        const title=$("noteTitle").value.trim(),content=$("noteContent").value.trim(),author=$("noteAuthor").value.trim(),category=$("noteCategory").value;
+        const color=document.querySelector('input[name="color"]:checked')?.value||"yellow";
+        if(title.length<2||content.length<2||author.length<1){showToast("Bitte fülle alle Pflichtfelder aus.",true);return;}
+        const record={title,content,author,category:allowedCategories.includes(category)?category:"Allgemein",color:allowedColors.includes(color)?color:"yellow",pinned:$("noteImportant").checked};
+        $("saveButton").disabled=true;localSet(nameKey,author);
+        try {
+          if(sharedMode){
+            if(editingId!==null){await updateRemote(editingId,record);showToast("Aushang aktualisiert.");}
+            else{await addRemote(record);showToast("Dein Aushang ist für alle Linkinhaber sichtbar.");}
+          }
+          else if(editingId!==null){notes=notes.map(n=>n.id===editingId?{...n,...record,demo:false}:n);persistLocal();render();showToast("Aushang aktualisiert.");}
+          else {const id=typeof crypto!=="undefined"&&crypto.randomUUID?crypto.randomUUID():`note-${Date.now()}-${Math.random().toString(36).slice(2)}`;notes.unshift({...record,id,created_at:new Date().toISOString(),demo:false});persistLocal();render();showToast("Nachricht erfolgreich angepinnt.");}
+          closeModal();
+        } catch(error){showToast(`Speichern fehlgeschlagen: ${error.message}`,true);}finally{$("saveButton").disabled=false;}
+      }
+      document.querySelectorAll(".tab").forEach(btn=>btn.addEventListener("click",()=>{activeFilter=btn.dataset.filter;document.querySelectorAll(".tab").forEach(other=>{const active=other===btn;other.classList.toggle("active",active);other.setAttribute("aria-pressed",active?"true":"false");});render();}));
+      document.querySelectorAll(".quick-filter").forEach(btn=>btn.addEventListener("click",()=>{
+        const filter=btn.dataset.quickFilter;
+        const tab=Array.from(document.querySelectorAll(".tab")).find(el=>el.dataset.filter===filter);
+        if(tab)tab.click();
+        $("forum").scrollIntoView({behavior:"smooth",block:"start"});
+      }));
+      $("sidebarAddButton").addEventListener("click",()=>openModal());
+      $("searchInput").addEventListener("input",render);$("sortSelect").addEventListener("change",render);
+      ["addButton","emptyAddButton"].forEach(id=>$(id).addEventListener("click",()=>openModal()));
+      ["closeModal","cancelModal"].forEach(id=>$(id).addEventListener("click",closeModal));
+      $("modalBackdrop").addEventListener("click",e=>{if(e.target===$("modalBackdrop"))closeModal();});
+      document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("modalBackdrop").hidden)closeModal();});
+      $("noteTitle").addEventListener("input",updateCounters);$("noteContent").addEventListener("input",updateCounters);$("noteForm").addEventListener("submit",handleSubmit);
+      $("refreshButton").addEventListener("click",()=>sharedMode?loadRemote():showToast("Alle lokalen Nachrichten werden bereits angezeigt."));
+      $("helpButton").addEventListener("click",()=>alert(sharedMode?
+        "Linkgeschützte Pinnwand: Alle mit gültigem Einladungslink können lesen, erstellen, bearbeiten und löschen. Ein weitergegebener Link ermöglicht ebenfalls Zugriff. Anzeigenamen sind nicht verifiziert.":
+        "Lokale Vorschau: Nachrichten sind nur in diesem Browser sichtbar. Zur gemeinsamen Nutzung Supabase einrichten (siehe ANLEITUNG.md)."));
+      if(sharedMode) {
+        loadRemote(true).catch(error=>showToast(`Verbindung fehlgeschlagen: ${error.message}`,true));
+        setInterval(()=>{if(document.visibilityState==="visible" && $("modalBackdrop").hidden)loadRemote(true);},20000);
+      } else {$("infoText").textContent="Bitte zuerst die Supabase-Projekt-URL in BOARD_CONFIG eintragen.";$("connectionLabel").textContent="Nicht konfiguriert";}
+    })();
+  </script>
+</body>
+</html>
