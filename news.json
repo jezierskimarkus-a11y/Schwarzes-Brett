@@ -1,19 +1,44 @@
 {
   "items": [
     {
-      "date": "07.10.2026",
-      "title": "Herzlich willkommen, Dr. Laura Ludwig!",
-      "url": "https://www.controlling.hhu.de/news/aktuelle-meldungen"
+      "date": "HHU News",
+      "title": "© Lübke",
+      "url": "https://www.controlling.hhu.de/news/aktuelle-meldungen/news-detail/herzlich-willkommen-laura-ludwig"
     },
     {
-      "date": "29.09.2026",
-      "title": "Bachelorarbeit von Jonas Michael Berken im JUMS veröffentlicht",
-      "url": "https://www.controlling.hhu.de/news/aktuelle-meldungen"
+      "date": "HHU News",
+      "title": "© JUMS / Berken",
+      "url": "https://www.controlling.hhu.de/news/aktuelle-meldungen/news-detail/bachelorarbeit-von-herrn-berken-im-jums-veroeffentlicht"
+    },
+    {
+      "date": "27.09.2026",
+      "title": "27.09.2026 | WiWi-Accounting-Aktuell Beitrag „Zum Rahmenkonzept von BMJV und BMF für eine Gesellschaft mit gebundenem Vermögen. Teil 1 und 2“ in der Zeitschrift „Der Betrieb“ veröf",
+      "url": "https://www.controlling.hhu.de/news/aktuelle-meldungen/news-detail/beitrag-zum-rahmenkonzept-von-bmjv-und-bmf-fuer-eine-gesellschaft-mit-gebundenem-vermoegen-teil-1-und-2-in-der-zeitschrift-der-betrieb-veroeffentlicht"
+    },
+    {
+      "date": "26.09.2026",
+      "title": "26.09.2026 | WiWi-Accounting-Aktuell Beitrag Echtzeitsteuerung „as a package“ in „Controlling. Zeitschrift Für Erfolgsorientierte Unternehmenssteuerung“ veröffentlicht Prof. Dr. Ba",
+      "url": "https://www.controlling.hhu.de/news/aktuelle-meldungen/news-detail/beitrag-echtzeitsteuerung-as-a-package-in-controlling-zeitschrift-fuer-erfolgsorientierte-unternehmenssteuerung-veroeffentlicht"
+    },
+    {
+      "date": "26.09.2026",
+      "title": "26.09.2026 | WiWi-Accounting-Aktuell Beitrag „KI als Business Partner im Controlling: Wie KI unterstützen kann – und wo ihre Grenzen sind“ in „Controlling. Zeitschrift Für Erfolgso",
+      "url": "https://www.controlling.hhu.de/news/aktuelle-meldungen/news-detail/beitrag-ki-als-business-partner-im-controlling-wie-ki-unterstuetzen-kann-und-wo-ihre-grenzen-sind-in-controlling-zeitschrift-fuer-erfolgsorientierte-unternehmenssteuerung-veroeffentlicht"
+    },
+    {
+      "date": "15.09.2026",
+      "title": "15.09.2026 | WiWi-Accounting-Aktuell Stellungnahme „Zur geplanten Streichung von C.1 Satz 3 DCGK (Nachhaltigkeitskompetenz im Aufsichtsrat) – Konsultation 2026“ bei der Regierungsk",
+      "url": "https://www.controlling.hhu.de/news/aktuelle-meldungen/news-detail/stellungnahme-zur-geplanten-streichung-von-c1-satz-3-dcgk-nachhaltigkeitskompetenz-im-aufsichtsrat-konsultation-2026-bei-der-regierungskommission-deutscher-corporate-governance-kodex-vorgelegt"
     },
     {
       "date": "09.09.2026",
-      "title": "Prüfungseinsicht BB08 SoSe2026",
-      "url": "https://www.controlling.hhu.de/news/aktuelle-meldungen"
+      "title": "09.09.2026 | WiWi-Accounting-Aktuell Prüfungseinsicht BB08 SoSe2026 Die Prüfungseinsicht des Moduls BB08 sowie der Teilleistung “Internes Rechnungswesen” des Moduls…",
+      "url": "https://www.controlling.hhu.de/news/aktuelle-meldungen/news-detail/pruefungseinsicht-bb08-sose2026"
+    },
+    {
+      "date": "15.07.2026",
+      "title": "15.07.2026 | WiWi-Accounting-Aktuell Beitrag „How to Make the Honeymoon Last: Effectiveness of Different Types of Management Controls for Innovation Success in Corporate-Startup Co",
+      "url": "https://www.controlling.hhu.de/news/aktuelle-meldungen/news-detail/beitrag-how-to-make-the-honeymoon-last-effectiveness-of-different-types-of-management-controls-for-innovation-success-in-corporate-startup-collaborations-in-der-zeitschrift-journal-of-innovation-management-veroeffentlicht"
     }
   ]
 }
