@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="Eine digitale Pinnwand für Nachrichten, Termine, Fragen und Angebote.">
+  <title>Das Schwarze Brett · Digitale Pinnwand</title>
+  <style>
+    :root {
+      --ink:#262b2a; --ink-soft:#5d6561; --muted:#7b827c; --border:#e1e5dd;
+      --page:#f7f8f4; --white:#fff; --accent:#275d4e; --accent-strong:#204b3e;
+      --cork:#e7ddc7; --shadow:0 9px 20px rgba(47,54,42,.055);
+      --yellow:#ffefb0; --lavender:#e9e1ff; --mint:#d9f1df; --rose:#fbe0e2; --blue:#ddecff;
+    }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--ink); background:var(--page); font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; -webkit-font-smoothing:antialiased; }
+    button,input,textarea,select { font:inherit; }
+    button { cursor:pointer; }
+    button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible { outline:3px solid rgba(39,93,78,.36); outline-offset:3px; }
+    .wrap { width:min(1200px,calc(100% - 56px)); margin:0 auto; }
+    .topbar { background:#fff; border-bottom:1px solid var(--border); }
+    .topbar-inner { min-height:84px; display:flex; justify-content:space-between; align-items:center; gap:20px; }
+    .brand { display:flex; align-items:center; gap:13px; text-decoration:none; color:inherit; }
+    .brand-icon { flex:none; display:grid; place-items:center; width:40px; height:40px; border-radius:13px; background:#e6f2eb; color:var(--accent); transform:rotate(-6deg); }
+    .brand-name { display:block; font-weight:800; font-size:17px; letter-spacing:-.5px; }
+    .brand-sub { display:block; color:#89918b; font-size:11px; font-weight:650; letter-spacing:.08em; text-transform:uppercase; margin-top:1px; }
+    .topbar-right { display:flex; align-items:center; gap:16px; }
+    .mode { font-size:12px; color:#557464; background:#ecf5ee; border:1px solid #dce9de; padding:8px 11px; border-radius:999px; white-space:nowrap; }
+    .mode:before { content:""; display:inline-block; vertical-align:1px; width:7px; height:7px; background:#56a77b; border-radius:50%; margin-right:7px; }
+    .mode.demo { color:#8a6632; background:#fcf5e9; border-color:#f0e3cc; }
+    .mode.demo:before { background:#d8a456; }
+    .header-link { background:transparent; border:0; color:#667069; font-size:13px; padding:8px 0; }
+    .header-link:hover { color:var(--ink); }
+    .hero { padding:58px 0 31px; }
+    .eyebrow { display:inline-flex; gap:9px; align-items:center; color:var(--accent); font-size:11px; text-transform:uppercase; font-weight:800; letter-spacing:.16em; }
+    .eyebrow-line { width:20px; height:1px; background:currentColor; }
+    .hero-row { display:flex; justify-content:space-between; align-items:flex-end; gap:26px; }
+    h1 { margin:13px 0 10px; font-family:Georgia,"Times New Roman",serif; font-weight:700; font-size:clamp(37px,5vw,61px); letter-spacing:-.045em; line-height:1.03; }
+    .intro { max-width:610px; color:#737b74; line-height:1.7; font-size:15px; margin:0; }
+    .button-primary { display:inline-flex; gap:9px; align-items:center; justify-content:center; border:1px solid var(--accent); background:var(--accent); color:#fff; font-weight:700; border-radius:11px; padding:14px 20px; box-shadow:0 6px 12px rgba(39,93,78,.14); transition:transform .15s,background .15s; white-space:nowrap; }
+    .button-primary:hover { background:var(--accent-strong); transform:translateY(-1px); }
+    .button-primary:disabled { opacity:.6; cursor:wait; transform:none; }
+    .button-secondary { display:inline-flex; gap:7px; align-items:center; background:#fff; border:1px solid #d7dfd6; border-radius:10px; padding:11px 16px; font-weight:700; color:var(--ink); }
+    .button-secondary:hover { background:#f5f8f3; }
+    .info-bar { display:flex; align-items:flex-start; gap:12px; margin:5px 0 25px; border:1px solid #e8e4d6; background:#fffdf5; padding:14px 16px; border-radius:12px; color:#786e58; font-size:13px; line-height:1.55; }
+    .info-bar svg { flex:none; margin-top:1px; color:#a68950; }
+    .info-bar strong { color:#5f5238; }
+    .info-bar.online { background:#eff8f2; border-color:#d9ebdf; color:#4a6954; }
+    .info-bar.online svg { color:#418a61; }
+    .info-bar.online strong { color:#2b6447; }
+    .toolbar { background:var(--white); border:1px solid var(--border); border-radius:14px; box-shadow:0 4px 14px rgba(26,45,28,.025); padding:16px 18px; display:flex; justify-content:space-between; align-items:center; gap:16px; }
+    .tabs { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+    .tab { border:0; background:transparent; color:#68716a; padding:10px 12px; border-radius:8px; font-size:13px; font-weight:650; transition:background .13s; }
+    .tab:hover { background:#f3f6f1; }
+    .tab.active { background:#e9f2eb; color:#27604d; }
+    .toolbar-actions { display:flex; align-items:center; gap:9px; }
+    .search { position:relative; display:block; }
+    .search svg { position:absolute; top:50%; left:12px; transform:translateY(-50%); color:#919990; }
+    .search input { width:204px; border:1px solid #e2e6df; background:#fbfcfa; border-radius:8px; padding:10px 10px 10px 37px; font-size:13px; color:var(--ink); }
+    .sort { min-width:142px; border:1px solid #e2e6df; background:#fbfcfa; border-radius:8px; padding:10px 12px; font-size:13px; color:#667068; }
+    .sectionline { margin:28px 0 19px; display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .sectionline-heading { display:flex; align-items:baseline; gap:10px; }
+    .sectionline h2 { font-size:18px; letter-spacing:-.035em; margin:0; }
+    .count { color:#859089; font-size:13px; }
+    .refresh { display:inline-flex; align-items:center; gap:6px; background:transparent; border:0; color:#788179; font-size:12px; padding:8px; }
+    .refresh:hover { color:var(--accent); }
+    .board { background-color:var(--cork); background-image:radial-gradient(#bcae91 0.75px,transparent .75px),radial-gradient(#f3e9d4 0.8px,transparent .8px); background-size:12px 12px; background-position:0 0,6px 6px; border:1px solid #d8ceb7; padding:36px; min-height:390px; border-radius:17px; box-shadow:inset 0 2px 11px rgba(108,85,48,.055),0 9px 24px rgba(83,72,45,.035); }
+    .notes { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:26px; align-items:start; }
+    .note { position:relative; padding:26px 24px 21px; min-height:260px; display:flex; flex-direction:column; border-radius:3px 4px 7px 4px; background:var(--yellow); box-shadow:4px 6px 0 rgba(81,76,57,.04),0 12px 22px rgba(78,65,40,.14); transform:rotate(var(--rotation,0deg)); transition:transform .17s,box-shadow .17s; overflow-wrap:anywhere; }
+    .note:hover { transform:rotate(0deg) translateY(-3px); z-index:1; box-shadow:2px 15px 25px rgba(78,65,40,.19); }
+    .note[data-color="lavender"] { background:var(--lavender); }
+    .note[data-color="mint"] { background:var(--mint); }
+    .note[data-color="rose"] { background:var(--rose); }
+    .note[data-color="blue"] { background:var(--blue); }
+    .pin { position:absolute; left:50%; top:8px; transform:translateX(-50%); width:13px; height:13px; background:#bd594e; border-radius:50%; box-shadow:1px 2px 2px rgba(49,23,23,.32),inset -3px -3px 2px rgba(123,20,20,.17),inset 2px 2px 2px rgba(255,255,255,.32); }
+    .pin:after { content:""; width:3px; height:3px; border-radius:50%; background:rgba(255,255,255,.63); position:absolute; top:3px; left:3px; }
+    .note-top { display:flex; justify-content:space-between; align-items:center; gap:6px; margin:3px 0 16px; }
+    .category { color:#3c443e; font-size:10px; text-transform:uppercase; font-weight:800; letter-spacing:.1em; background:rgba(255,255,255,.39); padding:5px 8px; border-radius:5px; }
+    .important { font-size:10px; display:inline-flex; align-items:center; gap:4px; font-weight:800; color:#9a5845; text-transform:uppercase; letter-spacing:.06em; }
+    .note h3 { font-size:20px; font-weight:780; letter-spacing:-.035em; line-height:1.25; margin:0 0 10px; }
+    .note p { font-size:13.5px; line-height:1.65; margin:0 0 23px; color:#485149; white-space:pre-wrap; flex:1; }
+    .note-footer { border-top:1px solid rgba(46,51,38,.12); padding-top:13px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .note-by { min-width:0; display:flex; flex-direction:column; gap:3px; }
+    .note-author { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:12px; font-weight:750; color:#3e463f; }
+    .note-date { font-size:11px; color:#778078; }
+    .note-actions { display:flex; gap:2px; }
+    .note-actions button { border:0; background:rgba(255,255,255,.25); border-radius:5px; display:grid; place-items:center; width:31px; height:31px; color:#626c60; }
+    .note-actions button:hover { color:#893c36; background:rgba(255,255,255,.52); }
+    .empty { display:flex; min-height:320px; align-items:center; flex-direction:column; justify-content:center; text-align:center; gap:9px; padding:20px; }
+    .empty-icon { background:rgba(255,255,255,.5); height:65px; width:65px; display:grid; place-items:center; border-radius:19px; color:#8e846a; }
+    .empty h3 { font-size:20px; letter-spacing:-.03em; margin:10px 0 0; }
+    .empty p { color:#767262; margin:0 0 12px; line-height:1.55; max-width:320px; font-size:14px; }
+    footer { display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; color:#9a9f96; font-size:12px; padding:27px 0 45px; }
+    .backdrop { position:fixed; z-index:10; inset:0; background:rgba(25,36,30,.50); display:grid; place-items:center; padding:20px; backdrop-filter:blur(2px); }
+    .backdrop[hidden] { display:none; }
+    .dialog { width:min(520px,100%); max-height:min(92vh,840px); overflow-y:auto; background:#fff; border-radius:17px; box-shadow:0 18px 75px rgba(0,0,0,.2); padding:27px 30px 30px; }
+    .dialog-head { display:flex; align-items:start; justify-content:space-between; gap:16px; margin-bottom:22px; }
+    .dialog-label { color:var(--accent); font-size:11px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
+    .dialog h2 { margin:7px 0 0; font-family:Georgia,"Times New Roman",serif; font-size:31px; letter-spacing:-.035em; }
+    .close { background:#f3f5f2; border:0; border-radius:8px; height:33px; width:33px; font-size:20px; color:#758077; line-height:1; }
+    .close:hover { background:#e9eeea; }
+    .field { display:block; margin:0 0 17px; }
+    .field-label { display:flex; justify-content:space-between; color:#3e4640; font-weight:750; font-size:12.5px; margin-bottom:8px; }
+    .counter { font-size:11px; color:#939d96; font-weight:500; }
+    .field input,.field textarea,.field select { display:block; width:100%; background:#fbfcfa; border:1px solid #dfe5dc; border-radius:9px; padding:12px 13px; font-size:14px; color:#29352e; }
+    .field input:focus,.field textarea:focus,.field select:focus { border-color:#76ae91; }
+    .field textarea { resize:vertical; min-height:114px; line-height:1.6; }
+    .fields-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .color-options { display:flex; align-items:center; gap:11px; margin:0 0 22px; }
+    .color-choice { display:inline-flex; cursor:pointer; position:relative; }
+    .color-choice input { opacity:0; position:absolute; width:0; height:0; }
+    .color-swatch { width:28px; height:28px; border-radius:50%; border:2px solid rgba(0,0,0,.07); background:var(--yellow); display:block; }
+    .color-choice input:checked + .color-swatch { outline:2px solid var(--accent); outline-offset:3px; }
+    .color-choice input:focus-visible + .color-swatch { outline:3px solid var(--accent); outline-offset:3px; }
+    .color-swatch.lavender { background:var(--lavender); } .color-swatch.mint { background:var(--mint); } .color-swatch.rose { background:var(--rose); } .color-swatch.blue { background:var(--blue); }
+    .checkbox-row { display:flex; align-items:center; gap:10px; margin:0 0 25px; font-size:13px; color:#424c44; cursor:pointer; }
+    .checkbox-row input { accent-color:var(--accent); width:17px; height:17px; }
+    .dialog-actions { border-top:1px solid #ecf0e9; padding-top:20px; display:flex; justify-content:flex-end; gap:10px; }
+    .toast { position:fixed; bottom:25px; right:25px; z-index:30; border-radius:10px; padding:13px 17px; background:#23382e; box-shadow:0 10px 30px rgba(0,0,0,.14); color:#fff; font-size:13px; max-width:360px; }
+    .toast.error { background:#883f36; }
+    .toast[hidden] { display:none; }
+    @media(max-width:1040px) { .notes { grid-template-columns:repeat(2,minmax(0,1fr)); } .toolbar { align-items:stretch; flex-direction:column; } .toolbar-actions { justify-content:space-between; } .search { flex:1; } .search input { width:100%; } }
+    @media(max-width:650px) { .wrap { width:min(100% - 30px,1200px); } .topbar-inner { min-height:72px; } .topbar-right { gap:8px; } .header-link { display:none; } .mode { font-size:10px; } .hero { padding:38px 0 25px; } .hero-row { display:block; } .intro { font-size:14px; } .hero-row .button-primary { margin-top:20px; width:100%; } .toolbar { padding:12px; } .tab { padding:9px 10px; font-size:12px; } .toolbar-actions { flex-direction:column; align-items:stretch; } .sort { width:100%; } .notes { grid-template-columns:1fr; gap:23px; } .board { padding:24px; } .note { min-height:218px; } .dialog { padding:22px 19px 23px; } .fields-row { grid-template-columns:1fr; gap:0; } }
+    @media(prefers-reduced-motion:reduce) { *,*:before,*:after { transition:none!important; scroll-behavior:auto!important; } }
+    /* Login und Berechtigungen für den privaten Online-Modus */
+    [hidden] { display:none!important; }
+    .auth-screen { min-height:calc(100vh - 85px); display:grid; place-items:center; padding:56px 18px; }
+    .auth-card { background:#fff; border:1px solid #e3e8df; box-shadow:var(--shadow); border-radius:19px; padding:35px; width:min(455px,100%); }
+    .auth-kicker { color:var(--accent); font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    .auth-card h1 { margin:14px 0 10px; font-size:clamp(30px,5vw,41px); }
+    .auth-card p { color:var(--ink-soft); line-height:1.65; font-size:14px; margin:0 0 23px; }
+    .auth-card label { display:flex; flex-direction:column; font-size:13px; font-weight:650; margin:0 0 15px; gap:7px; }
+    .auth-card input { width:100%; border:1px solid #dbe2d9; border-radius:9px; padding:12px 13px; font-weight:450; font-size:14px; }
+    .auth-card button[type=submit] { width:100%; margin-top:7px; }
+    .auth-error { font-size:13px; color:#994039; background:#fff1ef; padding:10px 13px; border-radius:8px; margin:4px 0 12px; }
+    .auth-caption { font-size:12px!important; margin:17px 0 0!important; }
+    .auth-user { font-size:12px; color:#526e5e; max-width:205px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .logout-btn { border:1px solid #dbe3d9; background:#fff; font-size:12px; padding:8px 11px; border-radius:8px; color:var(--ink-soft); white-space:nowrap; }
+    .logout-btn:hover { background:#f2f6f2; }
+    @media(max-width:650px) { .auth-card { padding:27px 22px; } .auth-user { display:none; } .logout-btn { padding:8px; } }
+  </style>
+</head>
+<body>
+  <!--
+    PRIVATE PINNWAND – SETUP:
+    1. supabase_private.sql im Supabase SQL Editor ausfuehren.
+    2. Unter Auth neue Registrierungen deaktivieren und individuelle Konten anlegen.
+    3. Die Mitgliederkonten in der Tabelle board_members freischalten.
+    4. BOARD_CONFIG ausfuellen und diese index.html z.B. auf GitHub Pages hochladen.
+    Ohne Konfiguration funktioniert eine lokale Vorschau (ohne Synchronisation).
+    WICHTIG: Nie einen Secret- oder Service-Role-Key hier verwenden.
+  -->
+  <script>
+    const BOARD_CONFIG = {
+      supabaseUrl: "",
+      supabasePublishableKey: ""
+    };
+  </script>
+
+  <!-- Offizieller Supabase-JavaScript-Client (Login, Sitzungen, API). -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="#start" aria-label="Zum Anfang der Pinnwand">
+        <span class="brand-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3.5 20.5 8l-3 1.5-3 5-3-3-5 3L5 20l5.5-6.5-3-3 5-3L14 4.5z"/><path d="m5 20-2 2"/></svg>
+        </span>
+        <span><span class="brand-name">Das Schwarze Brett.</span><span class="brand-sub">Platz für gute Nachrichten</span></span>
+      </a>
+      <div class="topbar-right"><span class="mode demo" id="modeBadge">Lokaler Demo-Modus</span><span class="auth-user" id="authUser" hidden></span><button class="logout-btn" type="button" id="logoutButton" hidden>Abmelden</button><button class="header-link" type="button" id="helpButton">Wie funktioniert's?</button></div>
+    </div>
+  </header>
+
+  <section id="authScreen" class="auth-screen" hidden aria-labelledby="authTitle">
+    <div class="auth-card">
+      <span class="auth-kicker">GESCHÜTZTER BEREICH</span>
+      <h1 id="authTitle">Willkommen am Schwarzen Brett.</h1>
+      <p>Diese Pinnwand ist nur für Mitglieder der Gruppe zugänglich. Melde dich mit dem persönlichen Zugang an, den dir die organisierende Person gegeben hat.</p>
+      <form id="loginForm">
+        <label for="loginEmail">E-Mail-Adresse<input id="loginEmail" name="email" type="email" autocomplete="username" required placeholder="name@beispiel.de"></label>
+        <label for="loginPassword">Passwort<input id="loginPassword" name="password" type="password" autocomplete="current-password" required placeholder="Dein persönliches Passwort"></label>
+        <div id="loginError" class="auth-error" role="alert" hidden></div>
+        <button class="button-primary" type="submit" id="loginButton">Anmelden</button>
+      </form>
+      <p class="auth-caption">Noch keinen Zugang? Bitte wende dich an die Person, die diese Pinnwand verwaltet.</p>
+    </div>
+  </section>
+
+  <main id="start" class="wrap">
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="eyebrow"><span class="eyebrow-line"></span> DIE DIGITALE PINNWAND</div>
+      <div class="hero-row">
+        <div><h1 id="heroTitle">Was gibt's Neues?</h1><p class="intro">Eine kleine Ecke für große und kleine Neuigkeiten. Teile Termine, stelle Fragen oder hinterlasse einfach eine Nachricht für alle.</p></div>
+        <button type="button" class="button-primary" id="addButton">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Nachricht anpinnen
+        </button>
+      </div>
+    </section>
+    <div class="info-bar" id="infoBar" role="status">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      <span id="infoText"><strong>Vorschau:</strong> Nachrichten werden nur in diesem Browser gespeichert. Andere Personen sehen sie nicht automatisch. Für eine gemeinsame Pinnwand kann eine Online-Datenbank angeschlossen werden.</span>
+    </div>
+    <section aria-label="Nachrichten filtern und durchsuchen">
+      <div class="toolbar">
+        <div class="tabs" role="group" aria-label="Kategorie auswählen">
+          <button class="tab active" type="button" data-filter="Alle" aria-pressed="true">Alle</button>
+          <button class="tab" type="button" data-filter="Allgemein" aria-pressed="false">Allgemein</button>
+          <button class="tab" type="button" data-filter="Termine" aria-pressed="false">Termine</button>
+          <button class="tab" type="button" data-filter="Fragen" aria-pressed="false">Fragen</button>
+          <button class="tab" type="button" data-filter="Angebote" aria-pressed="false">Angebote</button>
+        </div>
+        <div class="toolbar-actions">
+          <label class="search"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.8" cy="10.8" r="7.3"/><path d="m16.2 16.2 4.6 4.6"/></svg><input id="searchInput" type="search" placeholder="Aushänge durchsuchen" aria-label="Aushänge durchsuchen"></label>
+          <select id="sortSelect" class="sort" aria-label="Reihenfolge"><option value="recent">Neueste zuerst</option><option value="oldest">Älteste zuerst</option><option value="important">Wichtige zuerst</option></select>
+        </div>
+      </div>
+    </section>
+    <section aria-labelledby="boardTitle">
+      <div class="sectionline"><div class="sectionline-heading"><h2 id="boardTitle">Alle Aushänge</h2><span class="count" id="resultCount">–</span></div><button class="refresh" id="refreshButton" type="button" title="Aushänge aktualisieren" aria-label="Aushänge aktualisieren"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.4 6"/><path d="m20 4 0 7-7 0"/></svg> Aktualisieren</button></div>
+      <div class="board"><div class="notes" id="notesContainer" aria-live="polite"></div><div class="empty" id="emptyState" hidden><span class="empty-icon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5h14v15H5zM9 9h6M9 13h6"/></svg></span><h3>Hier ist noch Platz.</h3><p id="emptyMessage">Sei die erste Person, die eine Nachricht anpinnt.</p><button class="button-secondary" type="button" id="emptyAddButton">+ Nachricht erstellen</button></div></div>
+    </section>
+  </main>
+  <footer class="wrap"><span>Ein Ort für den Austausch. Einfach, übersichtlich und persönlich.</span><span id="footerStatus">Vorschau · Speicherung auf diesem Gerät</span></footer>
+
+  <div id="modalBackdrop" class="backdrop" hidden>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="modalHeading">
+      <div class="dialog-head"><div><span class="dialog-label">DEIN AUSHANG</span><h2 id="modalHeading">Nachricht anpinnen</h2></div><button class="close" id="closeModal" type="button" aria-label="Schließen">×</button></div>
+      <form id="noteForm">
+        <label class="field"><span class="field-label"><span>Überschrift *</span><span class="counter" id="titleCounter">0/80</span></span><input id="noteTitle" name="title" required minlength="2" maxlength="80" placeholder="Worum geht es?"></label>
+        <label class="field"><span class="field-label"><span>Deine Nachricht *</span><span class="counter" id="contentCounter">0/1200</span></span><textarea id="noteContent" name="content" required minlength="2" maxlength="1200" placeholder="Was möchtest du mit anderen teilen?"></textarea></label>
+        <div class="fields-row"><label class="field"><span class="field-label"><span>Dein Name *</span></span><input id="noteAuthor" name="author" required maxlength="60" placeholder="z. B. Alex"></label><label class="field"><span class="field-label"><span>Kategorie</span></span><select id="noteCategory" name="category"><option value="Allgemein">Allgemein</option><option value="Termine">Termine</option><option value="Fragen">Fragen</option><option value="Angebote">Angebote</option></select></label></div>
+        <span class="field-label" style="margin-bottom:13px">Farbe des Zettels</span>
+        <div class="color-options" role="group" aria-label="Zettelfarbe wählen">
+          <label class="color-choice" title="Gelb"><input type="radio" name="color" value="yellow" checked><span class="color-swatch"></span></label>
+          <label class="color-choice" title="Lila"><input type="radio" name="color" value="lavender"><span class="color-swatch lavender"></span></label>
+          <label class="color-choice" title="Grün"><input type="radio" name="color" value="mint"><span class="color-swatch mint"></span></label>
+          <label class="color-choice" title="Rosa"><input type="radio" name="color" value="rose"><span class="color-swatch rose"></span></label>
+          <label class="color-choice" title="Blau"><input type="radio" name="color" value="blue"><span class="color-swatch blue"></span></label>
+        </div>
+        <label class="checkbox-row"><input type="checkbox" id="noteImportant" name="important"><span>Als wichtige Nachricht markieren</span></label>
+        <div class="dialog-actions"><button type="button" class="button-secondary" id="cancelModal">Abbrechen</button><button type="submit" class="button-primary" id="saveButton">Jetzt anpinnen</button></div>
+      </form>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <script>
+    (() => {
+      "use strict";
+      const $ = (id) => document.getElementById(id);
+      const allowedColors = ["yellow","lavender","mint","rose","blue"];
+      const allowedCategories = ["Allgemein","Termine","Fragen","Angebote"];
+      const baseUrl = String(BOARD_CONFIG.supabaseUrl || "").trim().replace(/\/+$/, "");
+      const publicKey = String(BOARD_CONFIG.supabasePublishableKey || "").trim();
+      const sharedMode = Boolean(baseUrl && publicKey);
+      const storageKey = "schwarzes-brett-notes-v1";
+      const nameKey = "schwarzes-brett-name-v1";
+      let notes = [];
+      let activeFilter = "Alle";
+      let editingId = null;
+      let toastTimer = null;
+      let lastFocused = null;
+      let currentlyLoading = false;
+      let currentUser = null;
+      let api = null;
+      if (sharedMode && window.supabase?.createClient) {
+        api = window.supabase.createClient(baseUrl, publicKey, {
+          auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:false }
+        });
+      }
+      const appMain = $("start");
+      const appFooter = document.querySelector("footer");
+      const authScreen = $("authScreen");
+      const loginError = $("loginError");
+      function showLogin(message="") {
+        currentUser=null;
+        notes=[];
+        appMain.hidden=true;
+        appFooter.hidden=true;
+        authScreen.hidden=false;
+        $("logoutButton").hidden=true;
+        $("authUser").hidden=true;
+        $("modeBadge").textContent="Mitglieder-Pinnwand";
+        $("modeBadge").classList.remove("demo");
+        loginError.textContent=message;
+        loginError.hidden=!message;
+      }
+      function showPrivateBoard(user) {
+        currentUser=user;
+        appMain.hidden=false;
+        appFooter.hidden=false;
+        authScreen.hidden=true;
+        $("logoutButton").hidden=false;
+        $("authUser").hidden=false;
+        $("authUser").textContent=user.email||"Angemeldet";
+        $("modeBadge").textContent="Privat · Mitglieder";
+        $("modeBadge").classList.remove("demo");
+        $("footerStatus").textContent="Privat · Geschützte gemeinsame Datenbank";
+        $("infoBar").classList.add("online");
+        $("infoText").innerHTML="<strong>Private Pinnwand:</strong> Nur freigeschaltete Mitglieder können Nachrichten lesen und erstellen. Eigene Beiträge lassen sich bearbeiten und löschen.";
+      }
+      async function unlockIfMember() {
+        if(!api) { showLogin("Die Login-Bibliothek konnte nicht geladen werden. Bitte prüfe deine Internetverbindung."); return; }
+        const {data:{user},error:userError}=await api.auth.getUser();
+        if(userError || !user) {showLogin();return;}
+        const {data:membership,error:memberError}=await api.from("board_members").select("user_id").eq("user_id",user.id).maybeSingle();
+        if(memberError) {showLogin("Der Mitgliederzugang konnte nicht geprüft werden. Bitte Konfiguration und Datenbankberechtigungen prüfen.");return;}
+        if(!membership) {showLogin("Dieses Konto wurde für die Pinnwand noch nicht freigeschaltet. Bitte die Organisation kontaktieren.");return;}
+        showPrivateBoard(user);
+        await loadRemote(true);
+      }
+      const demoNotes = () => {
+        const now = Date.now();
+        return [
+          {id:"demo-1",title:"Willkommen auf dem Schwarzen Brett!",content:"Hier kannst du Neuigkeiten teilen, Fragen stellen und Termine ankündigen. Probier es einfach aus – dieser Eintrag ist nur ein Beispiel.",author:"Das Team",category:"Allgemein",color:"yellow",pinned:true,created_at:new Date(now-3600*1000*3).toISOString(),demo:true},
+          {id:"demo-2",title:"Nächstes Teamtreffen",content:"Kleine Erinnerung: Unser nächstes Treffen steht an. Weitere Infos kannst du hier als neuen Aushang ergänzen.",author:"Alex",category:"Termine",color:"mint",pinned:false,created_at:new Date(now-3600*1000*16).toISOString(),demo:true},
+          {id:"demo-3",title:"Hat jemand einen Tipp?",content:"Du suchst Hilfe, möchtest etwas tauschen oder hast eine kurze Frage? Genau dafür ist diese Pinnwand da.",author:"Sam",category:"Fragen",color:"lavender",pinned:false,created_at:new Date(now-3600*1000*28).toISOString(),demo:true}
+        ];
+      };
+      function localGet(key) { try { return window.localStorage.getItem(key); } catch (_) { return null; } }
+      function localSet(key, val) { try { window.localStorage.setItem(key,val); return true; } catch (_) { return false; } }
+      function loadLocal() { const raw=localGet(storageKey); if (raw===null) {notes=demoNotes();localSet(storageKey,JSON.stringify(notes));} else {try {const parsed=JSON.parse(raw); notes=Array.isArray(parsed)?parsed:[];} catch (_) {notes=[];}} render(); }
+      function persistLocal() { if (!localSet(storageKey,JSON.stringify(notes))) { showToast("Der Browser erlaubt keine dauerhafte Speicherung.",true); } }
+      const safeText = (v) => typeof v === "string" ? v : "";
+      function showToast(message,error=false) { const t=$("toast");t.textContent=message;t.className=`toast${error?" error":""}`;t.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.hidden=true,4200); }
+      function formatDate(value) {const dt=new Date(value);if(Number.isNaN(dt.getTime()))return "Unbekannt";return new Intl.DateTimeFormat("de-DE",{day:"2-digit",month:"short",year:"numeric"}).format(dt);}
+      function addEl(tag,cls,text) { const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el; }
+      function appendIcon(button,kind) {
+        const icons={delete:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v6M14 10v6"/></svg>',edit:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16 4l4 4L9 19l-5 1 1-5z"/></svg>'};button.innerHTML=icons[kind];
+      }
+      function card(note,i) {
+        const item=addEl("article","note");item.dataset.color=allowedColors.includes(note.color)?note.color:"yellow";item.style.setProperty("--rotation",["-1.2deg","1.15deg","-.65deg",".9deg","-.8deg"][i%5]);
+        const pin=addEl("span","pin");pin.setAttribute("aria-hidden","true");item.append(pin);
+        const top=addEl("div","note-top");top.append(addEl("span","category",allowedCategories.includes(note.category)?note.category:"Allgemein"));
+        if(note.pinned)top.append(addEl("span","important","★ Wichtig"));
+        else if(note.demo)top.append(addEl("span","important","Beispiel"));
+        item.append(top);
+        item.append(addEl("h3",null,safeText(note.title)));
+        item.append(addEl("p",null,safeText(note.content)));
+        const footer=addEl("div","note-footer"),by=addEl("div","note-by");by.append(addEl("span","note-author",safeText(note.author)));by.append(addEl("span","note-date",formatDate(note.created_at)));footer.append(by);
+        if(!sharedMode || (currentUser && note.created_by===currentUser.id)){const actions=addEl("div","note-actions");const edit=addEl("button");edit.type="button";edit.title="Nachricht bearbeiten";edit.setAttribute("aria-label",`${safeText(note.title)} bearbeiten`);appendIcon(edit,"edit");edit.addEventListener("click",()=>openModal(note.id));actions.append(edit);const del=addEl("button");del.type="button";del.title="Nachricht löschen";del.setAttribute("aria-label",`${safeText(note.title)} löschen`);appendIcon(del,"delete");del.addEventListener("click",()=>removeNote(note.id));actions.append(del);footer.append(actions);}
+        item.append(footer);return item;
+      }
+      function render() {
+        const search=$("searchInput").value.trim().toLocaleLowerCase("de-DE");
+        let filtered=notes.filter(n=>(activeFilter==="Alle"||n.category===activeFilter)&&(!search||[n.title,n.content,n.author,n.category].some(v=>safeText(v).toLocaleLowerCase("de-DE").includes(search))));
+        const ordering=$("sortSelect").value;
+        filtered.sort((a,b)=>{if(ordering==="important"&&Boolean(a.pinned)!==Boolean(b.pinned))return Number(Boolean(b.pinned))-Number(Boolean(a.pinned));const difference=new Date(b.created_at).getTime()-new Date(a.created_at).getTime();return ordering==="oldest"?-difference:difference;});
+        const container=$("notesContainer");container.replaceChildren();const fragment=document.createDocumentFragment();filtered.forEach((n,i)=>fragment.append(card(n,i)));container.append(fragment);
+        $("resultCount").textContent=`${filtered.length} ${filtered.length===1?"Nachricht":"Nachrichten"}`;
+        $("boardTitle").textContent=activeFilter==="Alle"?"Alle Aushänge":activeFilter;
+        const empty=filtered.length===0;$("emptyState").hidden=!empty;$("notesContainer").hidden=empty;
+        $("emptyMessage").textContent=notes.length===0?"Sei die erste Person, die eine Nachricht anpinnt.":"Für diese Auswahl sind keine Nachrichten vorhanden.";
+      }
+      function setLoading(loading) { currentlyLoading=loading;$("refreshButton").disabled=loading; }
+      async function loadRemote(silent=false) {
+        if(!currentUser || !api || currentlyLoading)return;
+        setLoading(true);
+        try {
+          const {data,error}=await api.from("pinboard_notes").select("*").order("created_at",{ascending:false}).limit(500);
+          if(error)throw error;
+          notes=data||[];
+          render();
+          if(!silent)showToast("Pinnwand ist auf dem neuesten Stand.");
+          $("infoBar").classList.add("online");
+          $("infoText").innerHTML="<strong>Private Pinnwand:</strong> Die Beiträge sind nur für Mitglieder freigegeben. Neuigkeiten erscheinen beim Aktualisieren automatisch etwa alle 20 Sekunden.";
+        } catch(error) {
+          if(!silent||notes.length===0)showToast(`Abruf fehlgeschlagen: ${error.message}`,true);
+          $("infoBar").classList.remove("online");
+          $("infoText").textContent="Verbindung fehlgeschlagen. Bitte Zugang, Datenbank und Internetverbindung prüfen.";
+        } finally {setLoading(false);}
+      }
+      async function addRemote(record) {
+        const {error}=await api.from("pinboard_notes").insert({...record,created_by:currentUser.id});
+        if(error)throw error;
+        await loadRemote(true);
+      }
+      async function updateRemote(id,record) {
+        const {data,error}=await api.from("pinboard_notes").update(record).eq("id",id).eq("created_by",currentUser.id).select("id");
+        if(error)throw error;
+        if(!data?.length)throw new Error("Dieser Beitrag darf nicht bearbeitet werden.");
+        await loadRemote(true);
+      }
+      async function removeNote(id) {
+        const note=notes.find(n=>n.id===id);
+        if(!note || (sharedMode && note.created_by!==currentUser?.id))return;
+        if(!confirm(`Aushang „${safeText(note.title)}“ wirklich löschen?`))return;
+        if(sharedMode) {
+          try {
+            const {data,error}=await api.from("pinboard_notes").delete().eq("id",id).eq("created_by",currentUser.id).select("id");
+            if(error)throw error;
+            if(!data?.length)throw new Error("Dieser Beitrag darf nicht gelöscht werden.");
+            await loadRemote(true);
+            showToast("Aushang wurde entfernt.");
+          } catch(error) {showToast(`Löschen fehlgeschlagen: ${error.message}`,true);}
+        } else {
+          notes=notes.filter(n=>n.id!==id);
+          persistLocal();render();showToast("Aushang wurde entfernt.");
+        }
+      }
+      function updateCounters() {$("titleCounter").textContent=`${$("noteTitle").value.length}/80`;$("contentCounter").textContent=`${$("noteContent").value.length}/1200`;}
+      function openModal(id=null) {
+        if(sharedMode && (!currentUser || (id!==null && notes.find(n=>n.id===id)?.created_by!==currentUser.id)))return;
+        editingId=id;lastFocused=document.activeElement;
+        const note=id===null?null:notes.find(n=>n.id===id);$("noteForm").reset();$("modalHeading").textContent=note?"Aushang bearbeiten":"Nachricht anpinnen";$("saveButton").textContent=note?"Änderungen speichern":"Jetzt anpinnen";
+        $("noteTitle").value=note?safeText(note.title):"";$("noteContent").value=note?safeText(note.content):"";$("noteAuthor").value=note?safeText(note.author):(localGet(nameKey)||"");$("noteCategory").value=note&&allowedCategories.includes(note.category)?note.category:"Allgemein";$("noteImportant").checked=Boolean(note?.pinned);
+        const color=note&&allowedColors.includes(note.color)?note.color:"yellow";const radio=document.querySelector(`input[name="color"][value="${color}"]`);if(radio)radio.checked=true;
+        updateCounters();$("modalBackdrop").hidden=false;document.body.style.overflow="hidden";$("noteTitle").focus();
+      }
+      function closeModal() {$("modalBackdrop").hidden=true;document.body.style.overflow="";editingId=null;if(lastFocused?.focus)lastFocused.focus();}
+      async function handleSubmit(event) {
+        event.preventDefault();if(!$("noteForm").reportValidity())return;
+        const title=$("noteTitle").value.trim(),content=$("noteContent").value.trim(),author=$("noteAuthor").value.trim(),category=$("noteCategory").value;
+        const color=document.querySelector('input[name="color"]:checked')?.value||"yellow";
+        if(title.length<2||content.length<2||author.length<1){showToast("Bitte fülle alle Pflichtfelder aus.",true);return;}
+        const record={title,content,author,category:allowedCategories.includes(category)?category:"Allgemein",color:allowedColors.includes(color)?color:"yellow",pinned:$("noteImportant").checked};
+        $("saveButton").disabled=true;localSet(nameKey,author);
+        try {
+          if(sharedMode){
+            if(editingId!==null){await updateRemote(editingId,record);showToast("Aushang aktualisiert.");}
+            else{await addRemote(record);showToast("Dein Aushang ist für alle Mitglieder sichtbar.");}
+          }
+          else if(editingId!==null){notes=notes.map(n=>n.id===editingId?{...n,...record,demo:false}:n);persistLocal();render();showToast("Aushang aktualisiert.");}
+          else {const id=typeof crypto!=="undefined"&&crypto.randomUUID?crypto.randomUUID():`note-${Date.now()}-${Math.random().toString(36).slice(2)}`;notes.unshift({...record,id,created_at:new Date().toISOString(),demo:false});persistLocal();render();showToast("Nachricht erfolgreich angepinnt.");}
+          closeModal();
+        } catch(error){showToast(`Speichern fehlgeschlagen: ${error.message}`,true);}finally{$("saveButton").disabled=false;}
+      }
+      document.querySelectorAll(".tab").forEach(btn=>btn.addEventListener("click",()=>{activeFilter=btn.dataset.filter;document.querySelectorAll(".tab").forEach(other=>{const active=other===btn;other.classList.toggle("active",active);other.setAttribute("aria-pressed",active?"true":"false");});render();}));
+      $("searchInput").addEventListener("input",render);$("sortSelect").addEventListener("change",render);
+      ["addButton","emptyAddButton"].forEach(id=>$(id).addEventListener("click",()=>openModal()));
+      ["closeModal","cancelModal"].forEach(id=>$(id).addEventListener("click",closeModal));
+      $("modalBackdrop").addEventListener("click",e=>{if(e.target===$("modalBackdrop"))closeModal();});
+      document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("modalBackdrop").hidden)closeModal();});
+      $("noteTitle").addEventListener("input",updateCounters);$("noteContent").addEventListener("input",updateCounters);$("noteForm").addEventListener("submit",handleSubmit);
+      $("refreshButton").addEventListener("click",()=>sharedMode?loadRemote():showToast("Alle lokalen Nachrichten werden bereits angezeigt."));
+      $("helpButton").addEventListener("click",()=>alert(sharedMode?
+        "Private Pinnwand: Nur eingeladene, in der Mitgliederliste freigeschaltete Konten können Nachrichten sehen. Du kannst eigene Aushänge bearbeiten und löschen. Die Nachrichten werden online gespeichert.":
+        "Lokale Vorschau: Nachrichten sind nur in diesem Browser sichtbar. Zur Einrichtung einer privaten gemeinsamen Pinnwand lies die Datei README.md."));
+      $("loginForm").addEventListener("submit",async(event)=>{
+        event.preventDefault();
+        if(!api){showLogin("Login-Bibliothek nicht geladen. Bitte Internetverbindung prüfen.");return;}
+        const button=$("loginButton");button.disabled=true;loginError.hidden=true;
+        try {
+          const {error}=await api.auth.signInWithPassword({email:$("loginEmail").value.trim(),password:$("loginPassword").value});
+          if(error)throw error;
+          $("loginPassword").value="";
+          await unlockIfMember();
+        } catch(error) {
+          loginError.textContent="Anmeldung fehlgeschlagen. Bitte E-Mail-Adresse und Passwort prüfen.";
+          loginError.hidden=false;
+        } finally {button.disabled=false;}
+      });
+      $("logoutButton").addEventListener("click",async()=>{
+        if(api)await api.auth.signOut();
+        showLogin();
+      });
+      if(sharedMode) {
+        showLogin();
+        if(api) {
+          api.auth.onAuthStateChange((event)=>{if(event==="SIGNED_OUT")showLogin();});
+          unlockIfMember().catch(error=>showLogin(`Verbindung fehlgeschlagen: ${error.message}`));
+          setInterval(()=>{if(currentUser && document.visibilityState==="visible" && $("modalBackdrop").hidden)loadRemote(true);},20000);
+        } else showLogin("Login-Bibliothek konnte nicht geladen werden. Bitte Internetverbindung prüfen.");
+      } else loadLocal();
+    })();
+  </script>
+</body>
+</html>
