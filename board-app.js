@@ -168,21 +168,6 @@
           render();showToast("Bewertung gespeichert.");
         }catch(e){showToast(`Bewertung fehlgeschlagen: ${e.message}`,true);up.disabled=down.disabled=false;}
       }
-      async function loadNews(){
-        const holder=$("hhuNews");
-        try{
-          const response=await fetch("./news.json",{cache:"no-store"});if(!response.ok)throw Error("Keine News-Datei");
-          const data=await response.json();if(!Array.isArray(data.items))throw Error("Ungültiges Format");
-          holder.replaceChildren();
-          for(const entry of data.items.slice(0,6)){
-            if(typeof entry.url!=="string" || !entry.url.startsWith("https://www.controlling.hhu.de/"))continue;
-            const box=addEl("div","news-item");box.append(addEl("time",null,entry.date||"HHU NEWS"));
-            const a=addEl("a",null,entry.title||"Meldung öffnen");a.href=entry.url;a.target="_blank";a.rel="noopener noreferrer";box.append(a);holder.append(box);
-          }
-          if(!holder.children.length)throw Error("Keine Einträge");
-        }catch(e){holder.replaceChildren();const box=addEl("div","news-item");const a=addEl("a",null,"Aktuelle Meldungen direkt auf controlling.hhu.de ansehen");a.href="https://www.controlling.hhu.de/news/aktuelle-meldungen";a.target="_blank";a.rel="noopener noreferrer";box.append(a);holder.append(box);}
-      }
-      loadNews();
       function render() {
         const search=$("searchInput").value.trim().toLocaleLowerCase("de-DE");
         let filtered=notes.filter(n=>(activeFilter==="Alle"||n.category===activeFilter)&&(!search||[n.title,n.content,n.author,n.category].some(v=>safeText(v).toLocaleLowerCase("de-DE").includes(search))));
@@ -358,9 +343,8 @@
       $("sidebarAddButton").addEventListener("click",()=>openModal());
       $("searchInput").addEventListener("input",render);$("sortSelect").addEventListener("change",render);
       ["addButton","emptyAddButton"].forEach(id=>$(id).addEventListener("click",()=>openModal()));
-      ["closeModal","cancelModal"].forEach(id=>$(id).addEventListener("click",closeModal));
-      $("modalBackdrop").addEventListener("click",e=>{if(e.target===$("modalBackdrop"))closeModal();});
-      document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("modalBackdrop").hidden)closeModal();});
+      // Der Beitragsdialog schließt nur per X oder nach erfolgreichem Speichern.
+      $("closeModal").addEventListener("click",closeModal);
       $("noteTitle").addEventListener("input",updateCounters);$("noteContent").addEventListener("input",updateCounters);$("noteForm").addEventListener("submit",handleSubmit);
       $("refreshButton").addEventListener("click",()=>sharedMode?loadRemote():showToast("Alle lokalen Nachrichten werden bereits angezeigt."));
       $("postAnonymous").addEventListener("change",toggleAnonymous);

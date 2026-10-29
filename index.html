@@ -5,11 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <meta name="description" content="Eine digitale Pinnwand für Nachrichten, Termine, Fragen und Angebote.">
-  <title>C&amp;A Board 3.00 · Schwarzes Brett · HHU-inspiriert</title>
+  <title>Schwarzes Brett 3.00 · Retro-Board</title>
   <style>
-/* C&A Bulletin Board v3.00 | Früh-2000er-Forum mit HHU-Webfarbpalette */
+/* Schwarzes Brett v3.00 | Früh-2000er-Forum im Retro-Look */
 :root {
-  --hhu:#006AB3; --hhu-dark:#003863; --hhu-light:#F1F8FE;
   --steel:#a6c2d9; --line:#6589a6; --ink:#1b2942; --muted:#56677e;
   --paper:#f4f6f9; --white:#fff; --lime:#daff6a; --alert:#b32c49;
   --cream:#fff6d7; --yellow:#fff1bd; --lavender:#eee6ff;
@@ -39,10 +38,6 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .brand-sub {display:block;font:700 11px/1.65 'Courier New',monospace;color:#c7e7ff;letter-spacing:.08em;text-transform:uppercase;margin-top:8px;}
 .brand-version {display:inline-block;background:#d7f36e;color:#162f44;font-size:9px;letter-spacing:0;vertical-align:middle;padding:2px 5px;border:1px solid #d9ffa2;text-shadow:none;transform:rotate(4deg);font-family:Verdana,Arial,sans-serif;}
 .topbar-right {display:flex;flex-direction:column;align-items:flex-end;gap:9px;position:relative;z-index:1;}
-.hhu-lockup {display:flex;gap:10px;align-items:center;text-align:left;border:1px solid #ffffff67;background:#00264d8f;padding:7px 11px;}
-.hhu-mark {font:900 34px/.95 Arial,sans-serif;letter-spacing:-3px;color:white;display:inline-flex;align-items:flex-end;}
-.hhu-mark:after {content:'';height:11px;width:11px;background:#a8d3f2;margin-left:3px;margin-bottom:1px;clip-path:polygon(0 0,100% 0,100% 100%);}
-.hhu-lockup-label {font:10px/1.35 Verdana,sans-serif;color:#e3f3ff;white-space:nowrap;}
 .member-area {display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:9px;}
 .mode {display:inline-flex;align-items:center;background:#16334a;color:#dcffb3;border:1px inset #6a91aa;padding:4px 7px;font:700 10px 'Courier New',monospace;white-space:nowrap;}
 .mode:before {content:'';height:7px;width:7px;margin-right:7px;background:#7aff70;box-shadow:0 0 6px #7aff70;}
@@ -56,8 +51,6 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .nav-inner a,.nav-inner button {white-space:nowrap;text-decoration:none;border:0;border-left:1px solid #648dad;border-right:1px solid #e5f5ff;background:none;color:#00305d;font:800 11px Tahoma,Arial,sans-serif;padding:11px 17px;text-shadow:1px 1px #eaf7ff;}
 .nav-inner a:hover,.nav-inner button:hover {background:#e9f7ff;color:#a52d39;}
 .nav-inner .nav-active {background:linear-gradient(#fffeec,#e2ecf5);box-shadow:inset 0 4px #c3dd5b;}
-.nav-spacer {flex:1;}
-.nav-inner .nav-last {background:linear-gradient(#ffecab,#ffcc6b);color:#58360a;}
 .ticker {background:#eef3d0;color:#42541a;border-bottom:1px solid #abb87f;padding:7px 0;font:700 11px 'Courier New',monospace;letter-spacing:.01em;}
 .ticker .wrap {display:flex;gap:15px;align-items:center;}
 .ticker-badge {padding:2px 7px;color:white;background:#b4243b;border:1px solid #711c2c;white-space:nowrap;box-shadow:1px 1px 0 #f5ffee;}
@@ -206,28 +199,37 @@ footer {background:#0c3558;color:#bfd6e8;border-top:3px solid #5b99c5;padding:16
 .auth-card p.auth-caption {font:10px/1.65 'Courier New',monospace;margin:16px 0 0;color:#677988;}
 .auth-ornament {display:flex;justify-content:space-between;gap:8px;color:#7090a9;border-top:1px dashed #b1c7d8;margin-top:18px;padding-top:10px;font:10px 'Courier New',monospace;}
 @media (max-width:1030px) {.forum-layout {grid-template-columns:205px minmax(0,1fr);} .toolbar-body {align-items:stretch;flex-direction:column;} .toolbar-actions {width:100%;} .search {flex:1;} .search input {width:100%;} .topbar-inner {min-height:120px;} }
-@media (max-width:760px) {.site-shell {width:calc(100% - 12px);margin:10px auto;box-shadow:0 0 0 3px #203e5c,0 0 0 4px #587b9b;} .wrap {width:calc(100% - 26px);} .forum-layout {display:flex;flex-direction:column-reverse;} .content-column,.sidebar {width:100%;} .sidebar {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));} .topbar-inner {align-items:flex-start;flex-wrap:wrap;gap:14px;padding:17px 0;} .topbar-right {flex-direction:row;align-items:flex-start;justify-content:space-between;width:100%;} .hhu-lockup {display:none;} .hero-row {align-items:flex-start;flex-direction:column;} .hero-row .button-primary {width:100%;} .brand-icon {width:61px;height:61px;flex-basis:61px;} .brand-icon svg {height:42px;width:42px;} .brand-name {font-size:27px;} .ticker {font-size:10px;} }
+@media (max-width:760px) {.site-shell {width:calc(100% - 12px);margin:10px auto;box-shadow:0 0 0 3px #203e5c,0 0 0 4px #587b9b;} .wrap {width:calc(100% - 26px);} .forum-layout {display:flex;flex-direction:column-reverse;} .content-column,.sidebar {width:100%;} .sidebar {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));} .topbar-inner {align-items:flex-start;flex-wrap:wrap;gap:14px;padding:17px 0;} .topbar-right {flex-direction:row;align-items:flex-start;justify-content:space-between;width:100%;} .hero-row {align-items:flex-start;flex-direction:column;} .hero-row .button-primary {width:100%;} .brand-icon {width:61px;height:61px;flex-basis:61px;} .brand-icon svg {height:42px;width:42px;} .brand-name {font-size:27px;} .ticker {font-size:10px;} }
 @media (max-width:540px) {.sidebar {display:flex;} .retro-topline {font-size:9px;} .retro-topline .wrap span:last-child {display:none;} .topbar-right {gap:6px;flex-wrap:wrap;} .brand-sub {font-size:9px;} .thread-inner {grid-template-columns:94px minmax(0,1fr);} .thread-user {padding:13px 5px;gap:6px;} .avatar {width:40px;height:40px;font-size:20px;} .note-author {font-size:10px;} .user-rank {font-size:8px;} .rank-pips i {width:7px;} .thread-message {padding:13px 10px 10px;} .note h3 {font-size:14px;} .note p {font-size:11px;} .note-footer {align-items:flex-start;flex-direction:column;} .search {width:100%;} .toolbar-actions {flex-direction:column;align-items:stretch;} .sort {width:100%;} .fields-row {grid-template-columns:1fr;gap:0;} .dialog-actions {flex-direction:column;} .dialog-actions button {width:100%;} .auth-card-content {padding:22px 17px;} .auth-card h1 {font-size:25px;} .nav-inner a,.nav-inner button {padding:9px 11px;font-size:10px;} .sectionline {flex-wrap:wrap;} }
 @media (prefers-reduced-motion:reduce) {*,*:before,*:after {transition:none!important;animation:none!important;scroll-behavior:auto!important;}}
 
 
-/* RETRO EXTRAS */
-.retro-ad {display:block;text-align:center;padding:13px 10px;margin:12px 0;border:3px ridge #afbed2;background:repeating-linear-gradient(135deg,#ffe882,#ffe882 10px,#ffd956 10px,#ffd956 20px);color:#263d68;text-decoration:none;font:900 15px Tahoma,Arial,sans-serif;letter-spacing:1px;text-shadow:1px 1px white;box-shadow:2px 3px 0 #7189a6}
-.retro-ad small{display:block;font:10px 'Courier New',monospace;letter-spacing:0;margin-top:4px}
+/* Fiktive Retro-Werbebanner: statische Dekoration ohne Links oder Tracking. */
+.retro-ad {display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:81px;text-align:center;padding:13px 9px;margin:11px 0;border:3px ridge #afbed2;background:repeating-linear-gradient(135deg,#ffe882,#ffe882 10px,#ffd956 10px,#ffd956 20px);color:#263d68;font:900 15px/1.25 Tahoma,Arial,sans-serif;letter-spacing:.045em;text-shadow:1px 1px #fff;box-shadow:2px 3px 0 #7189a6;overflow-wrap:anywhere}
+.retro-ad small{display:block;font:10px/1.45 'Courier New',monospace;letter-spacing:0;margin-top:6px;text-shadow:none}
 .retro-ad.alt{background:linear-gradient(90deg,#082b54,#2265a4,#082b54);color:#fff;text-shadow:1px 1px #000}
 .retro-ad.alt small{color:#d9ecff}
+.retro-ad.mint{background:repeating-linear-gradient(0deg,#d8f7dd,#d8f7dd 9px,#a3e0b6 9px,#a3e0b6 18px);color:#205543}
+.retro-ad.space{background:radial-gradient(circle at 22% 30%,#8ebeff 1px,transparent 2px),radial-gradient(circle at 72% 64%,#f9e77a 1px,transparent 2px),linear-gradient(125deg,#111441,#40317b,#102c58);background-size:18px 18px,25px 25px,100% 100%;color:#f6fbff;text-shadow:1px 1px #10122b}
+.retro-ad.space small{color:#d7e8ff}
+.retro-ad.neon{background:linear-gradient(135deg,#092936,#17666c);color:#deff64;text-shadow:2px 2px #09212b;border-color:#7ed9d3}
+.retro-ad.neon small{color:#efffcd}
+.retro-ad.rose{background:repeating-linear-gradient(45deg,#ffbcd1,#ffbcd1 12px,#fff0f3 12px,#fff0f3 24px);color:#772a55}
+.retro-ad.sunset{background:linear-gradient(135deg,#ffdd80,#ff9869,#ef6790);color:#4b2353}
+.retro-ad.check{background:conic-gradient(#edf5fb 25%,#b8d5f0 0 50%,#edf5fb 0 75%,#b8d5f0 0) 0 0/30px 30px;color:#123e68}
+.retro-ad.caution{background:repeating-linear-gradient(135deg,#ffdd4c 0 14px,#222e3a 14px 23px);color:#fff;text-shadow:1px 1px #000,2px 2px #000}
+.retro-ad.caution small{color:#fff}
+.retro-ad.violet{background:linear-gradient(110deg,#6d55b0,#a571db,#5e459f);color:#fff;text-shadow:1px 1px #39236a}
+.retro-ad.violet small{color:#f8e4ff}
+.retro-ad.teal{background:linear-gradient(0deg,#adf0ec,#f4feff 50%,#8cd1d4 51%,#98e1e6);color:#145668}
+.ad-stack-head{margin:4px 0 9px;color:#3c617e;background:#e9f0f7;border:1px dashed #92aec5;text-align:center;font:800 10px 'Courier New',monospace;letter-spacing:.04em;padding:6px}
+.ad-wide{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 15px}
+.ad-wide .retro-ad{margin:0;min-height:91px}
+@media (max-width:540px){.ad-wide{grid-template-columns:1fr}}
 .vote-box{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:9px 0}
 .vote-box button{font:700 11px Tahoma,Arial,sans-serif;border:2px outset #9db4c8;background:linear-gradient(#fff,#d8e8f7);color:#123e65;padding:5px 8px;cursor:pointer}
 .vote-box button:disabled{opacity:.5;cursor:wait}
 .vote-box .score{font:700 12px 'Courier New',monospace;color:#24486c;background:#f2f8ff;padding:5px 8px;border:1px solid #b6c8da}
-.news-panel{border:2px ridge #a3b7ce;background:#f7faff;margin:18px 0 20px}
-.news-panel h2{margin:0;padding:9px 13px;color:#fff;background:linear-gradient(#286aab,#003863);font:700 14px Tahoma,Arial,sans-serif}
-.news-list{padding:10px 13px}
-.news-item{padding:10px 0;border-bottom:1px dotted #9eb4ce;font:12px Verdana,Arial,sans-serif}
-.news-item:last-child{border-bottom:0}
-.news-item a{color:#005995;font-weight:bold;text-decoration:underline}
-.news-item time{display:block;color:#526e86;font:10px 'Courier New',monospace;margin-bottom:4px}
-.news-foot{padding:7px 13px;border-top:1px solid #c4d4e3;color:#536d85;font:10px Verdana,Arial,sans-serif}
 .note-gallery{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
 .note-gallery a{display:inline-block;border:2px ridge #96b1c9;background:#f7faff;line-height:0}
 .note-gallery img{display:block;width:125px;height:100px;object-fit:cover}
@@ -264,7 +266,7 @@ footer {background:#0c3558;color:#bfd6e8;border-top:3px solid #5b99c5;padding:16
 
 
   <div class="site-shell">
-    <div class="retro-topline"><div class="wrap"><span>[ C&A :: INTRANET-STYLE BULLETIN BOARD SYSTEM ]</span><span>EST. 2003 (GEFÜHLT) &nbsp; // &nbsp; REV. 3.00</span></div></div>
+    <div class="retro-topline"><div class="wrap"><span>[ SCHWARZES BRETT :: INTRANET-STYLE BULLETIN BOARD ]</span><span>EST. 2003 (GEFÜHLT) &nbsp; // &nbsp; REV. 3.00</span></div></div>
     <header class="topbar">
       <div class="wrap topbar-inner">
         <a class="brand" href="#start" aria-label="Zum Schwarzen Brett">
@@ -277,13 +279,10 @@ footer {background:#0c3558;color:#bfd6e8;border-top:3px solid #5b99c5;padding:16
           </span>
           <span>
             <span class="brand-name">Das Schwarze Brett<span class="brand-version">v3.00</span></span>
-            <span class="brand-sub">CONTROLLING &amp; ACCOUNTING // BOARD SYSTEM</span>
+            <span class="brand-sub">DEIN BOARD // IDEEN, FRAGEN &amp; AUSHÄNGE</span>
           </span>
         </a>
         <div class="topbar-right">
-          <div class="hhu-lockup" aria-label="Design angelehnt an die Farben der Heinrich-Heine-Universität Düsseldorf">
-            <span class="hhu-mark">hhu</span><span class="hhu-lockup-label">Heinrich-Heine-Universität<br>Düsseldorf · Farb-Inspiration</span>
-          </div>
           <div class="member-area"><span class="mode demo" id="modeBadge">Verbindung wird geprüft</span><button class="header-link" type="button" id="adminLoginButton" hidden>ADMIN-LOGIN</button><button class="header-link" type="button" id="adminLogoutButton" hidden>ADMIN-LOGOUT</button><button class="header-link" type="button" id="retryMailsButton" hidden>E-MAILS ERNEUT SENDEN</button><button class="header-link" type="button" id="helpButton">[ Hilfe ? ]</button></div>
         </div>
       </div>
@@ -292,14 +291,12 @@ footer {background:#0c3558;color:#bfd6e8;border-top:3px solid #5b99c5;padding:16
       <a href="#start" class="nav-active">⌂ &nbsp; STARTSEITE</a>
       <a href="#forum">▦ &nbsp; FORENÜBERSICHT</a>
       <a href="#boardRules">? &nbsp; BOARDREGELN</a>
-      <span class="nav-spacer"></span>
-      <a class="nav-last" href="https://www.controlling.hhu.de/" target="_blank" rel="noopener noreferrer">HHU LEHRSTUHL ↗</a>
     </div></nav>
-    <div class="ticker"><div class="wrap"><span class="ticker-badge">+++ BOARD-NEWS +++</span><span class="ticker-copy">Master the Language of Accounting and Control. &nbsp; ::: &nbsp; <a href="#forum">Fragen, Termine und Aushänge</a> &nbsp; ::: &nbsp; Privates Board: Nur mit Einladungslink. Anonym posten ist möglich.</span></div></div>
+    <div class="ticker"><div class="wrap"><span class="ticker-badge">+++ BOARD-FUNK +++</span><span class="ticker-copy">Fragen, Fundstücke und spontane Ideen. &nbsp; ::: &nbsp; <a href="#forum">Frische Aushänge ansehen</a> &nbsp; ::: &nbsp; Privat und nur mit Einladungslink – anonym posten ist möglich.</span></div></div>
 
 <main id="start" class="wrap page-main">
       <section class="hero" aria-labelledby="heroTitle">
-        <div class="breadcrumb">BOARD INDEX <span>»</span> COMMUNICATION HUB <span>»</span> C&amp;A COMMUNITY</div>
+        <div class="breadcrumb">BOARD INDEX <span>»</span> COMMUNICATION HUB <span>»</span> BOARD COMMUNITY</div>
         <div class="hero-row">
           <div>
             <div class="eyebrow"><span class="eyebrow-line"></span> OFF-TOPIC IST AUCH EIN TOPIC</div>
@@ -345,12 +342,26 @@ footer {background:#0c3558;color:#bfd6e8;border-top:3px solid #5b99c5;padding:16
               <p>01 &nbsp; Nett bleiben.</p><p>02 &nbsp; Themen sinnvoll benennen.</p><p>03 &nbsp; Nicht alles ist ein KPI.</p>
             </div>
           </section>
-          <a class="retro-ad" href="https://www.controlling.hhu.de/" target="_blank" rel="noopener noreferrer" aria-label="Zum Lehrstuhl">★ POWERED BY COFFEE ★<small>100% FORECAST • 0% SLEEP • [ ANZEIGE / PARODIE ]</small></a>
-          <a class="retro-ad alt" href="https://www.controlling.hhu.de/" target="_blank" rel="noopener noreferrer">EXCEL FANCLUB 2003<small>SPREADSHEETS NEVER DIE • [ SPASSBANNER ]</small></a>
+          <div class="ad-stack" aria-label="Fiktive Werbebanner, Teil eins">
+            <div class="ad-stack-head">[ WERBEPAUSE // NUR ZUM SPASS ]</div>
+            <div class="retro-ad">★ SOCKEN-ORAKEL 2000 ★<small>Finde deine verlorene zweite Socke · [ FIKTIV ]</small></div>
+            <div class="retro-ad mint">☁ WOLKENPARKPLATZ ☁<small>Immer ein Platz über dir frei · [ FIKTIV ]</small></div>
+            <div class="retro-ad space">UFO-PANNENDIENST<small>Auch auf dem Mars erreichbar · [ FIKTIV ]</small></div>
+            <div class="retro-ad neon">KAKTUS-WLAN DELUXE<small>Mehr Balken, weniger Stacheln · [ FIKTIV ]</small></div>
+            <div class="retro-ad rose">KATZEN-RADIO FM<small>Schnurren in Dolby Mono · [ FIKTIV ]</small></div>
+          </div>
           <section class="side-panel" aria-labelledby="webBadgesTitle">
             <div class="panel-head" id="webBadgesTitle">WEBRING / 2003-VIBES</div>
-            <div class="side-body"><div class="pixel-awards"><span class="award">BEST VIEWED<br>WITH COFFEE</span><span class="award alt">100%<br>RETRO</span><span class="award">Ctrl + Acc<br>FOREVER</span></div><p style="margin-top:10px">Kein offizielles Angebot der HHU oder des Lehrstuhls. Gestaltung in Anlehnung an das HHU-Blau.</p></div>
+            <div class="side-body"><div class="pixel-awards"><span class="award">BEST VIEWED<br>WITH COFFEE</span><span class="award alt">100%<br>RETRO</span><span class="award">HELLO<br>WORLD!</span></div><p style="margin-top:10px">Fiktive Spaßanzeigen ohne externe Links. Willkommen im Retro-Internet!</p></div>
           </section>
+          <div class="ad-stack" aria-label="Fiktive Werbebanner, Teil zwei">
+            <div class="ad-stack-head">[ ANZEIGEN AUS EINER ANDEREN DIMENSION ]</div>
+            <div class="retro-ad sunset">MOND-PIZZA EXPRESS<small>Extra Käse, zero gravity · [ FIKTIV ]</small></div>
+            <div class="retro-ad caution">ZEITMASCHINEN-TÜV<small>Gestern schon repariert! · [ FIKTIV ]</small></div>
+            <div class="retro-ad alt">DISKETTEN-INTERNET<small>1,44 MB pure Zukunft · [ FIKTIV ]</small></div>
+            <div class="retro-ad violet">KEKS-VERSICHERUNG<small>Bruchschutz ab dem ersten Biss · [ FIKTIV ]</small></div>
+            <div class="retro-ad teal">VHS-RÜCKSPULSERVICE<small>Wir machen's rückwärts · [ FIKTIV ]</small></div>
+          </div>
         </aside>
 
         <div class="content-column" id="forum">
@@ -374,22 +385,25 @@ footer {background:#0c3558;color:#bfd6e8;border-top:3px solid #5b99c5;padding:16
               </div>
             </div>
           </section>
-          <section class="news-panel" aria-labelledby="newsTitle"><h2 id="newsTitle">[ LIVE-WIRE ] NEUES VOM LEHRSTUHL</h2><div class="news-list" id="hhuNews"><div class="news-item">Meldungen werden geladen …</div></div><div class="news-foot">Automatischer Abgleich über GitHub Actions (alle 6 Stunden, sofern aktiviert). Quelle: controlling.hhu.de. Externe Links führen zur offiziellen HHU-Seite.</div></section>
+          <div class="ad-wide" aria-label="Weitere fiktive Werbebanner">
+            <div class="retro-ad check">BÜROKLAMMER-BOUTIQUE<small>Jede Kurve ein Unikat · [ FIKTIV ]</small></div>
+            <div class="retro-ad violet">HIMMELS-STAUBSAUGER 2.0<small>Jetzt auch gegen Sternenstaub · [ FIKTIV ]</small></div>
+          </div>
           <section aria-labelledby="boardTitle">
             <div class="sectionline"><div class="sectionline-heading"><h2 id="boardTitle">ALLE AUSHÄNGE</h2><span class="count" id="resultCount">—</span></div><button class="refresh" id="refreshButton" type="button" title="Beiträge aktualisieren" aria-label="Beiträge aktualisieren"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11a8 8 0 1 0-2.4 6"/><path d="m20 4 0 7-7 0"/></svg> AKTUALISIEREN</button></div>
             <div class="board"><div class="notes" id="notesContainer" aria-live="polite"></div><div class="empty" id="emptyState" hidden><span class="empty-icon" aria-hidden="true">[?]</span><h3>Hier ist noch nichts los.</h3><p id="emptyMessage">Eröffne die erste Diskussion im Board.</p><button class="button-secondary" type="button" id="emptyAddButton">[ + THEMA ERSTELLEN ]</button></div></div>
-            <div class="board-bottom"><span>◼ C&amp;A BOARD SYSTEM 3.00 &nbsp; / &nbsp; NO SPAM. JUST POSTS.</span><span>ALLE ZEITEN SIND LOKAL</span></div>
+            <div class="board-bottom"><span>◼ SCHWARZES BRETT 3.00 &nbsp; / &nbsp; NO SPAM. JUST POSTS.</span><span>ALLE ZEITEN SIND LOKAL</span></div>
           </section>
         </div>
       </div>
     </main>
 
-    <footer><div class="wrap footer-inner"><div><strong>© C&amp;A BOARD // 2003 FEELING, 2026 TECH</strong><div class="footer-note">Inoffizielle Pinnwand · HHU-inspirierte Farben · keine offizielle Website des Lehrstuhls.</div></div><div><span id="footerStatus">Vorschau · Daten nur lokal</span><div><a href="https://www.controlling.hhu.de/" target="_blank" rel="noopener noreferrer">Zum offiziellen Lehrstuhlauftritt ↗</a></div></div></div></footer>
+    <footer><div class="wrap footer-inner"><div><strong>© SCHWARZES BRETT // 2003 FEELING, 2026 TECH</strong><div class="footer-note">Private Pinnwand · Retro-Design · fiktive Werbebanner ohne externe Verlinkung.</div></div><div><span id="footerStatus">Vorschau · Daten nur lokal</span></div></div></footer>
   </div>
 
   <div id="modalBackdrop" class="backdrop" hidden>
     <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="modalHeading">
-      <div class="dialog-head"><div><span class="dialog-label">[ NEW MESSAGE / C&amp;A FORUM ]</span><h2 id="modalHeading">Neuen Beitrag posten</h2></div><button class="close" id="closeModal" type="button" aria-label="Schließen">×</button></div>
+      <div class="dialog-head"><div><span class="dialog-label">[ NEW MESSAGE / SCHWARZES BRETT ]</span><h2 id="modalHeading">Neuen Beitrag posten</h2></div><button class="close" id="closeModal" type="button" aria-label="Schließen">×</button></div>
       <form id="noteForm">
         <label class="field"><span class="field-label"><span>› BETREFF / ÜBERSCHRIFT *</span><span class="counter" id="titleCounter">0/80</span></span><input id="noteTitle" name="title" required minlength="2" maxlength="80" placeholder="Worum geht's?"></label>
         <label class="field"><span class="field-label"><span>› DEIN BEITRAG *</span><span class="counter" id="contentCounter">0/1200</span></span><textarea id="noteContent" name="content" required minlength="2" maxlength="1200" placeholder="Schreib deine Nachricht..."></textarea></label>
@@ -416,7 +430,7 @@ footer {background:#0c3558;color:#bfd6e8;border-top:3px solid #5b99c5;padding:16
           <span class="upload-help">Das Profilbild gilt nur für diesen Beitrag. Ein Foto kann die Anonymität beeinträchtigen.</span>
         </div>
         <label class="checkbox-row"><input type="checkbox" id="noteImportant" name="important"><span>[★] Beitrag als wichtig anpinnen</span></label>
-        <div class="dialog-actions"><button type="button" class="button-secondary" id="cancelModal">ABBRECHEN</button><button type="submit" class="button-primary" id="saveButton">BEITRAG ABSCHICKEN »</button></div>
+        <div class="dialog-actions"><button type="submit" class="button-primary" id="saveButton">BEITRAG ABSCHICKEN »</button></div>
       </form>
     </div>
   </div>
@@ -434,6 +448,6 @@ footer {background:#0c3558;color:#bfd6e8;border-top:3px solid #5b99c5;padding:16
   </div>
   <div class="toast" id="toast" role="status" hidden></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.min.js"></script>
-  <script src="./board-app.js"></script>
+  <script src="./board-app.js?v=layout-20261029"></script>
 </body>
 </html>
