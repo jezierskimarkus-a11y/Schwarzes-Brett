@@ -7,7 +7,7 @@
   <meta name="description" content="Eine digitale Pinnwand für Nachrichten, Termine, Fragen und Angebote.">
   <title>Schwarzes Brett 1.0 · Retro-Board</title>
   <style>
-/* Schwarzes Brett v3.00 | Früh-2000er-Forum im Retro-Look */
+/* Schwarzes Brett v1.0 | Früh-2000er-Forum im Retro-Look */
 :root {
   --steel:#a6c2d9; --line:#6589a6; --ink:#1b2942; --muted:#56677e;
   --paper:#f4f6f9; --white:#fff; --lime:#daff6a; --alert:#b32c49;
@@ -247,6 +247,30 @@ footer {background:#0c3558;color:#bfd6e8;border-top:3px solid #5b99c5;padding:16
 .admin-form p{font-size:11px;line-height:1.6;color:#34516c}
 .admin-form .field input{width:100%;padding:9px;border:2px inset #bbcfdf}
 .admin-form button[type=submit]{width:100%;margin-top:9px}
+
+/* Coin Economy v1.0: additive retro forum widgets, no external assets. */
+.header-coins {display:inline-flex;align-items:center;white-space:nowrap;text-decoration:none;background:#ffe38f;border:2px outset #fff2c1;color:#4a3507;padding:3px 9px;font:900 12px 'Courier New',monospace;box-shadow:2px 2px 0 #042544}
+.header-coins:hover {color:#482f08;background:#fff0b6}
+.coin-panel .side-body {background:linear-gradient(165deg,#fff9de,#e6eff6 75%)}
+.wallet-main {display:flex;align-items:center;gap:10px;padding:7px 8px;margin-bottom:8px;background:#f7e5a2;border:2px ridge #c9a14b;color:#5c440f}
+.wallet-main strong {font:900 30px Tahoma,Arial,sans-serif;line-height:1}
+.wallet-main span {font:900 10px 'Courier New',monospace;letter-spacing:.06em}
+.coin-status {font:700 10px/1.5 'Courier New',monospace;color:#4b6479;margin:6px 0 9px}
+.coin-earning {font:10px/1.8 'Courier New',monospace;padding:8px 9px;border:1px dashed #b2a16c;background:#fffdf3;color:#465361}
+.coin-note {font:10px/1.5 Verdana,Arial,sans-serif;color:#5c7183;margin:7px 0 0!important}
+.leaderboard-caption {font:10px/1.5 'Courier New',monospace;color:#5f7485;margin-bottom:10px!important}
+.leaderboard-list {display:flex;flex-direction:column;gap:8px}
+.leaderboard-row {display:flex;gap:7px;align-items:center;width:100%;padding:8px 6px;text-align:left;border:1px solid #a4bfd5;background:linear-gradient(#fffef8,#e6f2fa);color:#23496a;cursor:pointer}
+.leaderboard-row:hover {background:#fff0bd}
+.leaderboard-rank {font:900 13px 'Courier New',monospace;color:#aa651b;flex:0 0 21px}
+.leaderboard-entry {display:flex;flex-direction:column;min-width:0;flex:1}
+.leaderboard-name {font:700 10px/1.5 Tahoma,Arial,sans-serif;overflow-wrap:anywhere}
+.leaderboard-votes {font:10px 'Courier New',monospace;color:#667c8d}
+.ranking-empty {font:11px/1.5 Verdana,Arial,sans-serif;color:#718699}
+.coin-post-hint {background:#fff8db;color:#6f5625;border:1px dashed #ddc27b;padding:7px 9px;font:10px/1.5 'Courier New',monospace;margin:4px 0 14px}
+.vote-box button.coin-vote {background:linear-gradient(#fff7d3,#ffd873);border-color:#edb94f;color:#61400d}
+.vote-box button.coin-vote:disabled {opacity:.55;cursor:not-allowed}
+.vote-box .coin-score {background:#fef8e7;border-color:#e5c985;color:#68450e}
 </style>
 </head>
 <body>
@@ -278,12 +302,12 @@ footer {background:#0c3558;color:#bfd6e8;border-top:3px solid #5b99c5;padding:16
             </svg>
           </span>
           <span>
-            <span class="brand-name">Das Schwarze Brett<span class="brand-version">v1.0 LAUNCH</span></span>
+            <span class="brand-name">Das Schwarze Brett<span class="brand-version">v1.0</span></span>
             <span class="brand-sub">DEIN BOARD // IDEEN, FRAGEN &amp; AUSHÄNGE</span>
           </span>
         </a>
         <div class="topbar-right">
-          <div class="member-area"><span class="mode demo" id="modeBadge">Verbindung wird geprüft</span><button class="header-link" type="button" id="adminLoginButton" hidden>ADMIN-LOGIN</button><button class="header-link" type="button" id="adminLogoutButton" hidden>ADMIN-LOGOUT</button><button class="header-link" type="button" id="retryMailsButton" hidden>E-MAILS ERNEUT SENDEN</button><button class="header-link" type="button" id="helpButton">[ Hilfe ? ]</button></div>
+          <div class="member-area"><a href="#coinWalletPanel" class="header-coins" id="headerCoinBadge" hidden>◉ — COINS</a><span class="mode demo" id="modeBadge">Verbindung wird geprüft</span><button class="header-link" type="button" id="adminLoginButton" hidden>ADMIN-LOGIN</button><button class="header-link" type="button" id="adminLogoutButton" hidden>ADMIN-LOGOUT</button><button class="header-link" type="button" id="retryMailsButton" hidden>E-MAILS ERNEUT SENDEN</button><button class="header-link" type="button" id="helpButton">[ Hilfe ? ]</button></div>
         </div>
       </div>
     </header>
@@ -328,11 +352,28 @@ footer {background:#0c3558;color:#bfd6e8;border-top:3px solid #5b99c5;padding:16
                 <span>Beitraege:</span><span class="val" id="totalCount">—</span>
                 <span>Verbindung:</span><span class="val"><i class="online-light" aria-hidden="true"></i><span id="connectionLabel">Vorschau</span></span>
                 <span>Letzter Abruf:</span><span class="val" id="lastSyncTime">—</span>
-                <span>Board-Version:</span><span class="val">1.0 Launch</span>
+                <span>Board-Version:</span><span class="val">1.0</span>
               </div>
               <hr class="side-rule">
               <p><strong>Willkommen zurück!</strong> Bitte freundlich posten. Hier wird zwischen Forecasts und Kaffeepausen kommuniziert.</p>
             </div>
+          </section>
+          <section class="side-panel coin-panel" id="coinWalletPanel" aria-labelledby="coinWalletTitle">
+            <div class="panel-head" id="coinWalletTitle">◉ DEIN COIN-KONTO</div>
+            <div class="side-body">
+              <div class="wallet-main"><strong id="coinBalance" aria-live="polite">—</strong><span>BOARD COINS</span></div>
+              <p class="coin-status" id="coinDailyStatus" role="status">Coin-System wird verbunden …</p>
+              <div class="coin-earning">+1 pro Besuch (alle 24 Stunden)<br>+1 pro neuem Beitrag<br>+1 je erhaltenem Upvote<br>−1 je vergebenem Upvote</div>
+              <p class="coin-note">Mehrfach-Upvotes erlaubt · Eigenvotes gesperrt.</p>
+            </div>
+          </section>
+          <section class="side-panel" aria-labelledby="weekTopTitle">
+            <div class="panel-head" id="weekTopTitle">★ HOT THIS WEEK · TOP 3</div>
+            <div class="side-body"><p class="leaderboard-caption">Die meisten Upvotes der letzten 7 Tage · laufend aktualisiert</p><div id="weeklyTop" class="leaderboard-list" aria-live="polite"><span class="ranking-empty">Noch keine Upvotes.</span></div></div>
+          </section>
+          <section class="side-panel" aria-labelledby="alltimeTopTitle">
+            <div class="panel-head" id="alltimeTopTitle">♛ HALL OF FAME</div>
+            <div class="side-body"><p class="leaderboard-caption">Die beliebtesten Beiträge aller Zeiten</p><div id="alltimeTop" class="leaderboard-list" aria-live="polite"><span class="ranking-empty">Noch keine Upvotes.</span></div></div>
           </section>
           <section class="side-panel" id="boardRules" aria-labelledby="boardRulesTitle">
             <div class="panel-head" id="boardRulesTitle">BOARD RULES.txt</div>
@@ -392,7 +433,7 @@ footer {background:#0c3558;color:#bfd6e8;border-top:3px solid #5b99c5;padding:16
           <section aria-labelledby="boardTitle">
             <div class="sectionline"><div class="sectionline-heading"><h2 id="boardTitle">ALLE AUSHÄNGE</h2><span class="count" id="resultCount">—</span></div><button class="refresh" id="refreshButton" type="button" title="Beiträge aktualisieren" aria-label="Beiträge aktualisieren"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11a8 8 0 1 0-2.4 6"/><path d="m20 4 0 7-7 0"/></svg> AKTUALISIEREN</button></div>
             <div class="board"><div class="notes" id="notesContainer" aria-live="polite"></div><div class="empty" id="emptyState" hidden><span class="empty-icon" aria-hidden="true">[?]</span><h3>Hier ist noch nichts los.</h3><p id="emptyMessage">Eröffne die erste Diskussion im Board.</p><button class="button-secondary" type="button" id="emptyAddButton">[ + THEMA ERSTELLEN ]</button></div></div>
-            <div class="board-bottom"><span>◼ SCHWARZES BRETT 3.00 &nbsp; / &nbsp; NO SPAM. JUST POSTS.</span><span>ALLE ZEITEN SIND LOKAL</span></div>
+            <div class="board-bottom"><span>◼ SCHWARZES BRETT 1.0 &nbsp; / &nbsp; NO SPAM. JUST POSTS.</span><span>ALLE ZEITEN SIND LOKAL</span></div>
           </section>
         </div>
       </div>
@@ -430,6 +471,7 @@ footer {background:#0c3558;color:#bfd6e8;border-top:3px solid #5b99c5;padding:16
           <span class="upload-help">Das Profilbild gilt nur für diesen Beitrag. Ein Foto kann die Anonymität beeinträchtigen.</span>
         </div>
         <label class="checkbox-row"><input type="checkbox" id="noteImportant" name="important"><span>[★] Beitrag als wichtig anpinnen</span></label>
+        <p class="coin-post-hint">◉ Jeder neue Beitrag bringt 1 Coin. Bearbeitungen zählen nicht erneut.</p>
         <div class="dialog-actions"><button type="submit" class="button-primary" id="saveButton">BEITRAG ABSCHICKEN »</button></div>
       </form>
     </div>
@@ -448,6 +490,6 @@ footer {background:#0c3558;color:#bfd6e8;border-top:3px solid #5b99c5;padding:16
   </div>
   <div class="toast" id="toast" role="status" hidden></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.min.js"></script>
-  <script src="./board-app.js?v=layout-20261029"></script>
+  <script src="./board-app.js?v=1.0-coin-economy"></script>
 </body>
 </html>

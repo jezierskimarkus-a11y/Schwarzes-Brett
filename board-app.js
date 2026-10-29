@@ -6,7 +6,7 @@
       const baseUrl = String(BOARD_CONFIG.supabaseUrl || "").trim().replace(/\/+$/, "");
       const sharedMode = Boolean(baseUrl);
       const storageKey = "schwarzes-brett-notes-v1";
-      // Browser-ID nur fuer die unvernetzte Demo; Online-Bewertungen sind JWT-gebunden.
+      // Browser-ID nur fuer die unvernetzte Demo; Online-Coins sind an die Supabase-JWT-Identitaet gebunden.
       const voterKey = "schwarzes-brett-voter-v1";
       let voterId = localStorage.getItem(voterKey);
       if (!voterId || !/^[0-9a-f-]{36}$/i.test(voterId)) {voterId=crypto.randomUUID();localStorage.setItem(voterKey,voterId);}
@@ -19,7 +19,10 @@
       let activeUserId = null;
       let removedImagePaths = new Set();
       let removeAvatarPending = false;
-      const ratings = new Map();
+      // Coins run in a separate backend; the legacy board-api rating table stays untouched.
+      let coinState = null;
+      let coinBusy = false;
+      const demoCoinKey = "schwarzes-brett-demo-coin-economy-v1";
       const nameKey = "schwarzes-brett-name-v1";
       const tokenKey = "schwarzes-brett-access-token";
       const fragmentToken = new URLSearchParams(location.hash.replace(/^#/,"")).get("token");
@@ -81,6 +84,120 @@
         "Private Pinnwand: Einladungslink und anonyme Identität erforderlich. Nur der Verfasser oder Administrator darf einen Beitrag ändern.":
         "Lokale Vorschau: Beiträge werden nur in diesem Browser gespeichert.";
       updateAccessUI();
+      async function economyRequest(action, extra = {}) {
+        if (!/^[a-f0-9]{64}$/.test(accessToken)) throw Error("Kein gültiger Einladungslink");
+        const jwt = await ensureIdentity();
+        const response = await fetch(`${baseUrl}/functions/v1/board-economy`, {
+          method:"POST", cache:"no-store",
+          headers:{ "Content-Type":"application/json", "apikey":BOARD_CONFIG.supabasePublishableKey,
+            "Authorization":`Bearer ${jwt}`, "x-board-token":accessToken },
+          body:JSON.stringify({ action, ...extra })
+        });
+        const data = await response.json().catch(()=>({error:"Ungültige Coin-Antwort"}));
+        if(!response.ok) throw Error(data.error||`HTTP ${response.status}`);
+        return data.economy;
+      }
+      function demoCoinData() {
+        try {
+          const saved=JSON.parse(localGet(demoCoinKey)||"null");
+          if(saved&&Number.isSafeInteger(saved.balance)&&Array.isArray(saved.votes))return saved;
+        }catch(_){/* New demo account. */}
+        return {balance:5,last_daily_claim_at:null,votes:[]};
+      }
+      function demoCoinState(daily=true) {
+        const wallet=demoCoinData();
+        const last=Date.parse(wallet.last_daily_claim_at||"");
+        const due=!Number.isFinite(last)||Date.now()-last>=86400000;
+        let awarded=false;
+        if(daily&&due){wallet.balance++;wallet.last_daily_claim_at=new Date().toISOString();awarded=true;}
+        localSet(demoCoinKey,JSON.stringify(wallet));
+        const totals={};const weekly={};const cutoff=Date.now()-7*86400000;
+        for(const vote of wallet.votes){
+          totals[vote.id]=(totals[vote.id]||0)+1;
+          if(Date.parse(vote.at)>cutoff)weekly[vote.id]=(weekly[vote.id]||0)+1;
+        }
+        const top=counts=>Object.entries(counts).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]))
+          .filter(([id,count])=>count>0&&notes.some(n=>n.id===id)).slice(0,3)
+          .map(([id,votes])=>({id,votes}));
+        coinState={balance:wallet.balance,daily_awarded:awarded,
+          next_daily_at:wallet.last_daily_claim_at?new Date(Date.parse(wallet.last_daily_claim_at)+86400000).toISOString():null,
+          own_post_ids:notes.filter(n=>n.coin_owner===voterId).map(n=>n.id),
+          post_counts:totals, weekly_top:top(weekly), alltime_top:top(totals)};
+      }
+      function renderCoinPanels() {
+        const ready=coinState&&Number.isFinite(Number(coinState.balance));
+        $("coinBalance").textContent=ready?String(coinState.balance):"—";
+        $("headerCoinBadge").hidden=!ready;
+        if(ready) $("headerCoinBadge").textContent=`◉ ${coinState.balance} COINS`;
+        if(!ready) $("coinDailyStatus").textContent=sharedMode?
+          "Coin-System derzeit nicht erreichbar · Beiträge funktionieren weiter.":"Demo-Coins werden geladen …";
+        else if(coinState.daily_awarded) $("coinDailyStatus").textContent="+1 COIN · Tagesbonus erhalten!";
+        else if(coinState.next_daily_at) {
+          const dt=new Date(coinState.next_daily_at);
+          $("coinDailyStatus").textContent=`Tagesbonus schon erhalten · wieder ab ${Number.isNaN(dt.getTime())?"morgen":new Intl.DateTimeFormat("de-DE",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}).format(dt)}`;
+        }else $("coinDailyStatus").textContent="Täglich +1 Coin für deinen Besuch";
+        const all=new Map(notes.map(note=>[String(note.id),note]));
+        const build=(elementId,results)=>{
+          const el=$(elementId);el.replaceChildren();
+          const visible=(Array.isArray(results)?results:[]).filter(entry=>all.has(String(entry.id))).slice(0,3);
+          if(!visible.length){el.append(addEl("span","ranking-empty",ready?"Noch keine Upvotes.":"Wird geladen …"));return;}
+          visible.forEach((entry,index)=>{
+            const note=all.get(String(entry.id));
+            const button=addEl("button","leaderboard-row");button.type="button";
+            button.append(addEl("span","leaderboard-rank",String(index+1).padStart(2,"0")));
+            const labels=addEl("span","leaderboard-entry");
+            labels.append(addEl("span","leaderboard-name",safeText(note.title)));
+            labels.append(addEl("span","leaderboard-votes",`${entry.votes} UPVOTES`));
+            button.append(labels);
+            button.addEventListener("click",()=>jumpToPost(note.id));
+            el.append(button);
+          });
+        };
+        build("weeklyTop",coinState?.weekly_top);
+        build("alltimeTop",coinState?.alltime_top);
+      }
+      function jumpToPost(id) {
+        // The search/filter may currently hide the winning post.
+        if(activeFilter!=="Alle"){
+          activeFilter="Alle";
+          document.querySelectorAll(".tab").forEach(tab=>{
+            const active=tab.dataset.filter==="Alle";
+            tab.classList.toggle("active",active);
+            tab.setAttribute("aria-pressed",active?"true":"false");
+          });
+        }
+        $("searchInput").value="";render();
+        const card=$("post-"+id);
+        if(card){card.scrollIntoView({behavior:"smooth",block:"center"});card.focus({preventScroll:true});}
+      }
+      async function loadCoinState() {
+        if(!sharedMode){demoCoinState(true);renderCoinPanels();return;}
+        if(coinBusy||!hasAccess)return;
+        coinBusy=true;
+        try{coinState=await economyRequest("status");}
+        catch(error){coinState=null;console.warn("Coin-Dienst nicht verfügbar:",error.message);}
+        finally{coinBusy=false;render();}
+      }
+      async function coinUpvote(id,button) {
+        if(coinBusy){showToast("Coin-Konto wird aktualisiert. Bitte erneut versuchen.");return;}
+        if(!coinState){showToast("Coin-System ist derzeit nicht erreichbar.",true);return;}
+        if(coinState.own_post_ids?.includes(String(id))){showToast("Eigene Beiträge können nicht hochgevotet werden.",true);return;}
+        if(Number(coinState.balance)<1){showToast("Du brauchst mindestens einen Coin.",true);return;}
+        coinBusy=true;button.disabled=true;
+        try{
+          if(sharedMode) coinState=await economyRequest("upvote",{post_id:id,request_id:crypto.randomUUID()});
+          else {
+            const saved=demoCoinData();
+            if(saved.balance<1)throw Error("Nicht genügend Coins");
+            saved.balance--;
+            saved.votes.push({id,at:new Date().toISOString()});
+            localSet(demoCoinKey,JSON.stringify(saved));
+            demoCoinState(false);
+          }
+          render();showToast("+1 Upvote · −1 Coin");
+        }catch(error){showToast(`Upvote fehlgeschlagen: ${error.message}`,true);}
+        finally{coinBusy=false;render();}
+      }
       const demoNotes = () => {
         const now = Date.now();
         return [
@@ -91,7 +208,7 @@
       };
       function localGet(key) { try { return window.localStorage.getItem(key); } catch (_) { return null; } }
       function localSet(key, val) { try { window.localStorage.setItem(key,val); return true; } catch (_) { return false; } }
-      function loadLocal() { markUpdated("Lokal"); const raw=localGet(storageKey); if (raw===null) {notes=demoNotes();localSet(storageKey,JSON.stringify(notes));} else {try {const parsed=JSON.parse(raw); notes=Array.isArray(parsed)?parsed:[];} catch (_) {notes=[];}} render(); }
+      function loadLocal() { markUpdated("Lokal"); const raw=localGet(storageKey); if (raw===null) {notes=demoNotes();localSet(storageKey,JSON.stringify(notes));} else {try {const parsed=JSON.parse(raw); notes=Array.isArray(parsed)?parsed:[];} catch (_) {notes=[];}} demoCoinState(true);render(); }
       function persistLocal() { if (!localSet(storageKey,JSON.stringify(notes))) { showToast("Der Browser erlaubt keine dauerhafte Speicherung.",true); } }
       const safeText = (v) => typeof v === "string" ? v : "";
       function showToast(message,error=false) { const t=$("toast");t.textContent=message;t.className=`toast${error?" error":""}`;t.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.hidden=true,4200); }
@@ -107,6 +224,7 @@
       }
       function card(note,i) {
         const item=addEl("article","note");
+        item.id="post-"+note.id;item.tabIndex=-1;
         item.dataset.color=allowedColors.includes(note.color)?note.color:"yellow";
         const top=addEl("div","thread-strip");
         const left=addEl("div","thread-strip-left");
@@ -152,21 +270,18 @@
           footer.append(actions);
         }
         const votes=addEl("div","vote-box");
-        const up=addEl("button",null,"▲ GUT");up.type="button";
-        const down=addEl("button",null,"▼ NICHT GUT");down.type="button";
-        const score=addEl("span","score",`SCORE: ${ratings.get(note.id) ?? 0}`);
-        up.addEventListener("click",()=>rateNote(note.id,1,up,down));
-        down.addEventListener("click",()=>rateNote(note.id,-1,up,down));
-        votes.append(up,score,down);message.append(votes);
+        const up=addEl("button","coin-vote","▲ UPVOTE · 1 COIN");up.type="button";
+        const own=coinState?.own_post_ids?.includes(String(note.id))===true;
+        // Coin backend includes all eligible posts in post_counts (also with 0 votes).
+        // Older posts without a mapped author are deliberately absent.
+        const unassigned=Boolean(sharedMode && coinState &&
+          !Object.prototype.hasOwnProperty.call(coinState.post_counts ?? {},String(note.id)));
+        up.disabled=!coinState||unassigned||own||Number(coinState.balance)<1||coinBusy;
+        up.title=!coinState?"Coin-Dienst wird verbunden":unassigned?"Für diesen Beitrag ist kein Coin-Empfänger hinterlegt":own?"Eigener Beitrag":Number(coinState.balance)<1?"Keine Coins übrig":"Beliebig oft möglich: jeder Klick kostet 1 Coin";
+        up.addEventListener("click",()=>coinUpvote(note.id,up));
+        const score=addEl("span","score coin-score",unassigned?"OHNE COIN-ZUORDNUNG":`UPVOTES: ${coinState?.post_counts?.[note.id] ?? 0}`);
+        votes.append(up,score);message.append(votes);
         message.append(footer);inner.append(message);item.append(inner);return item;
-      }
-      async function rateNote(id,value,up,down){
-        up.disabled=down.disabled=true;
-        try{
-          if(sharedMode){const result=await boardRequest("rate",{id,value});ratings.set(id,result.score);}
-          else {const key=`vote-${id}-${voterId}`;const old=Number(localStorage.getItem(key)||0);localStorage.setItem(key,String(value));ratings.set(id,(ratings.get(id)||0)-old+value);}
-          render();showToast("Bewertung gespeichert.");
-        }catch(e){showToast(`Bewertung fehlgeschlagen: ${e.message}`,true);up.disabled=down.disabled=false;}
       }
       function render() {
         const search=$("searchInput").value.trim().toLocaleLowerCase("de-DE");
@@ -179,6 +294,7 @@
         $("boardTitle").textContent=activeFilter==="Alle"?"Alle Aushänge":activeFilter;
         const empty=filtered.length===0;$("emptyState").hidden=!empty;$("notesContainer").hidden=empty;
         $("emptyMessage").textContent=notes.length===0?"Eröffne die erste Diskussion im Board.":"Hier wurden noch keine passenden Beiträge gefunden.";
+        renderCoinPanels();
       }
       function markUpdated(label) {
         $("connectionLabel").textContent=label;
@@ -190,8 +306,9 @@
         setLoading(true);
         try {
           const result=await boardRequest("list");
-          notes=result.notes||[];isAdmin=result.is_admin===true;updateAccessUI();ratings.clear();for(const r of result.ratings||[])ratings.set(r.note_id,Number(r.score)||0);
+          notes=result.notes||[];isAdmin=result.is_admin===true;updateAccessUI();
           markUpdated("Online");render();
+          void loadCoinState();
           if(!silent)showToast("Pinnwand ist auf dem neuesten Stand.");
           $("infoBar").classList.add("online");
           $("infoText").textContent="Privates Board: Einladungslink und individuelle anonyme Identität. Bearbeiten/Löschen nur für Verfasser oder Administrator. Abgleich alle 20 Sekunden.";
@@ -324,9 +441,9 @@
             for(const dataUrl of prepared)await boardRequest("upload_image",{id,kind:"image",dataUrl});
             if(newAvatar)await boardRequest("upload_image",{id,kind:"avatar",dataUrl:newAvatar});
             await loadRemote(true);
-            showToast(editingId!==null?"Beitrag aktualisiert.":"Beitrag veröffentlicht. E-Mail-Benachrichtigungen werden serverseitig verarbeitet.");
+            showToast(editingId!==null?"Beitrag aktualisiert.":"Beitrag veröffentlicht. Coin-Guthaben wird abgeglichen; E-Mails werden serverseitig verarbeitet.");
           }else if(editingId!==null){notes=notes.map(n=>n.id===editingId?{...n,...record,demo:false}:n);persistLocal();render();showToast("Aushang aktualisiert.");}
-          else {const id=crypto.randomUUID();notes.unshift({...record,id,created_at:new Date().toISOString(),demo:false});persistLocal();render();showToast("Nachricht erfolgreich veröffentlicht.");}
+          else {const id=crypto.randomUUID();notes.unshift({...record,id,coin_owner:voterId,created_at:new Date().toISOString(),demo:false});persistLocal();const wallet=demoCoinData();wallet.balance+=1;localSet(demoCoinKey,JSON.stringify(wallet));demoCoinState(false);render();showToast("Nachricht veröffentlicht · +1 Coin.");}
           closeModal();
         }catch(error){
           if(saved){await loadRemote(true);closeModal();showToast(`Text gespeichert, aber Bildaktion fehlgeschlagen: ${error.message}`,true);}
@@ -349,7 +466,7 @@
       $("refreshButton").addEventListener("click",()=>sharedMode?loadRemote():showToast("Alle lokalen Nachrichten werden bereits angezeigt."));
       $("postAnonymous").addEventListener("change",toggleAnonymous);
       $("helpButton").addEventListener("click",()=>alert(sharedMode?
-        "Nur mit gültigem Einladungslink und anonymer Supabase-Identität. Bearbeiten/Löschen nur durch Verfasser oder Administrator. Die Browseridentität geht verloren, wenn du die lokalen Auth-Daten löschst oder dich abmeldest. Ein Profilbild kann dich erkennbar machen.":
+        "Nur mit gültigem Einladungslink und anonymer Supabase-Identität. Bearbeiten/Löschen nur durch Verfasser oder Administrator. Die Browseridentität geht verloren, wenn du die lokalen Auth-Daten löschst oder dich abmeldest. Ein Profilbild kann dich erkennbar machen. Coin-Regeln: +5 Start, +1 pro 24h-Besuch, +1 pro neuem Beitrag, −1 pro Upvote, +1 bei Upvote auf deinen Beitrag. Mehrfach-Upvotes erlaubt; keine Eigenvotes.":
         "Lokale Demo: Nachrichten bleiben in diesem Browser. Für die gemeinsame Nutzung Supabase nach der Anleitung einrichten."));
       $("adminLoginButton").addEventListener("click",()=>{$("adminBackdrop").hidden=false;$("adminEmail").focus();});
       function closeAdmin(){$("adminBackdrop").hidden=true;$("adminPassword").value="";}
@@ -369,7 +486,7 @@
       });
       $("adminLogoutButton").addEventListener("click",async()=>{
         if(!confirm("Admin abmelden? Danach wird eine neue anonyme Identität erstellt."))return;
-        try{await sb.auth.signOut();activeUserId=null;isAdmin=false;await ensureIdentity();await loadRemote(true);showToast("Admin abgemeldet; neue anonyme Sitzung aktiv.");}
+        try{await sb.auth.signOut();activeUserId=null;isAdmin=false;coinState=null;renderCoinPanels();await ensureIdentity();await loadRemote(true);showToast("Admin abgemeldet; neue anonyme Sitzung aktiv.");}
         catch(error){showToast(`Abmelden fehlgeschlagen: ${error.message}`,true);}
       });
       $("retryMailsButton").addEventListener("click",async()=>{
